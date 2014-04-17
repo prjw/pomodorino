@@ -1,4 +1,4 @@
 pomodorian
 ==========
 
-A simple pomodoro application written in python.
+A simple pomodoro application written in Python.
