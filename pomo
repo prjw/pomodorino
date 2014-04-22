@@ -1,8 +1,5 @@
 #!/usr/bin/env python
 
-def main():
-    print("Pomodoro hello");
-
-
 if __name__ == '__main__':            
-    main()
+    from pomodorian.core import run
+    run()

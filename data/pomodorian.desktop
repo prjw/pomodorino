@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Pomodorian
+Comment=A simple pomodoro application written in Python.
+Exec=pomo
+Icon=pomodorian
+Categories=Education
+Terminal=false
+Type=Application
