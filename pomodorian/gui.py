@@ -1,12 +1,14 @@
 from PyQt4 import QtGui, QtCore
 from pomodorian.utils import *
-import sys
+import sys, math
 
 
 class PomoWindow(QtGui.QWidget):
     
-    def __init__(self):
+    def __init__(self, pomo):
         super(PomoWindow, self).__init__()
+        
+        self.pomo = pomo
         
         self.initUI()
         
@@ -33,6 +35,10 @@ class PomoWindow(QtGui.QWidget):
         pomo_btn.setToolTip('This is a <b>QPushButton</b> widget')
         pomo_btn.setFixedSize(180,60)
         pomo_btn.setStyleSheet('font-size: 16pt;')
+        #pomo_btn.connect(self.startButton)
+        pomo_btn.connect(pomo_btn, QtCore.SIGNAL('clicked()'), self.onClicked)
+        
+        self.pomoBTN = pomo_btn
         
         pomo_checkBox = QtGui.QCheckBox("just one")
         pomo_checkBox2 = QtGui.QCheckBox("double length")
@@ -130,9 +136,34 @@ class PomoWindow(QtGui.QWidget):
         
         if e.key() == QtCore.Qt.Key_Escape:
             self.close()
+            
+    def sendTick(self, val):
+        if self.pomoBTN.text() is not 'Start':
+            newVal = 25*60 - val
+            newVal = "{0:0>2}:{1:0>2}".format(math.floor(newVal/60),newVal % 60)
+            self.pomoBTN.setText(newVal)
+            
+    def onClicked(self):
+        sender = self.sender()
+        
+        if sender.text() == 'Start':
+            sender.setText("25:00")
+            self.pomo.startTimer()
+        else:
+            self.pomo.stopTimer()
+            reply = QtGui.QMessageBox.question(self, 'Timer paused',
+            "Do you really want to reset the running timer?", QtGui.QMessageBox.Yes | 
+            QtGui.QMessageBox.No, QtGui.QMessageBox.No)
+            
+            if reply == QtGui.QMessageBox.Yes:
+                sender.setText("Start")
+                self.pomo.resetTimer()
+            else:
+                self.pomo.startTimer()
         
 
-def initGUI():
+def initGUI(pomo):
     app = QtGui.QApplication(sys.argv)
-    pomoGUI = PomoWindow()
+    pomoGUI = PomoWindow(pomo)
+    pomo.setGUI(pomoGUI)
     sys.exit(app.exec_())
