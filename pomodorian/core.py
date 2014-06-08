@@ -1,4 +1,4 @@
-import configparser, os, threading, time
+import configparser, os, threading, time, math
 
 from pomodorian.utils import *
 from pomodorian.gui import initGUI
@@ -44,6 +44,15 @@ class PomoCore():
     def resetTimer(self):
         self.stopTimer()
         self.timerCount = 0
+        
+    def finishTimer(self, minutes):
+        # get task
+        self.resetTimer()
+        pomos = math.ceil(minutes / 25)
+        if pomos >= 1:
+            # add pomodoro to current task
+            pass
+            
         
 
 

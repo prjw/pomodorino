@@ -12,116 +12,166 @@ class PomoWindow(QtGui.QWidget):
         
         self.initUI()
         
-    def initUI(self):      
-        # window settings
         
-        self.setFixedSize(420, 255)
-        self.move(250,250)
-        self.setWindowTitle('Pomodorian')
-        self.setWindowIcon(QtGui.QIcon('/usr/share/icons/pomodorian.png'))
-
-        # pomo Tab
-        
+    def initPomoTab(self):
         pomoTab = QtGui.QWidget()
         
-        pomo_taskEdit = QtGui.QComboBox()
-        pomo_taskEdit.setEditable(True)
-        pomo_taskEdit.lineEdit().setMaxLength(45)
-        pomo_taskEdit.lineEdit().setPlaceholderText("task / activity / project")
-        pomo_taskEdit.setFixedSize(354,29)
-        pomo_taskEdit.setStyleSheet('font-size: 11pt;')
+        taskEdit = QtGui.QComboBox()
+        taskEdit.setEditable(True)
+        taskEdit.lineEdit().setMaxLength(45)
+        taskEdit.lineEdit().setPlaceholderText("task / activity / project")
+        taskEdit.setFixedSize(354,29)
+        taskEdit.setStyleSheet('font-size: 11pt;')
+        self.pomoTaskEdit = taskEdit
         
-        pomo_btn = QtGui.QPushButton('Start', pomoTab)
-        pomo_btn.setToolTip('This is a <b>QPushButton</b> widget')
-        pomo_btn.setFixedSize(180,60)
-        pomo_btn.setStyleSheet('font-size: 16pt;')
-        #pomo_btn.connect(self.startButton)
-        pomo_btn.connect(pomo_btn, QtCore.SIGNAL('clicked()'), self.onClicked)
         
-        self.pomoBTN = pomo_btn
-        
-        pomo_checkBox = QtGui.QCheckBox("just one")
-        pomo_checkBox2 = QtGui.QCheckBox("double length")
-        
-        pomo_firstRow = QtGui.QHBoxLayout()
-        pomo_firstRow.addWidget(pomo_taskEdit)
-        
-        pomo_secondRow = QtGui.QHBoxLayout()
-        pomo_secondRow.addStretch()
-        pomo_secondRow.addWidget(pomo_checkBox)
-        pomo_secondRow.addWidget(pomo_checkBox2)
-        pomo_secondRow.addStretch()
-        
-        pomo_thirdRow = QtGui.QHBoxLayout()
-        pomo_thirdRow.addWidget(pomo_btn)
-        
-        pomo_vbox = QtGui.QVBoxLayout()
-        pomo_vbox.addStretch(0.05)
-        pomo_vbox.addLayout(pomo_firstRow)
-        pomo_vbox.addStretch(0.25)
-        pomo_vbox.addLayout(pomo_secondRow)
-        pomo_vbox.addStretch(0.25)
-        pomo_vbox.addLayout(pomo_thirdRow)
-        pomo_vbox.addStretch(0.33)
-        
-        pomoTab.setLayout(pomo_vbox) 
+        mainButton = QtGui.QPushButton('Start', pomoTab)
+        mainButton.setToolTip('This is a <b>QPushButton</b> widget')
+        mainButton.setFixedSize(180,60)
+        mainButton.setStyleSheet('font-size: 16pt;')
 
-        # stats tab
         
+        timeButton = QtGui.QPushButton('25', pomoTab)
+        timeButton.setToolTip('Standard one-size-fits-all Pomodoro')
+        timeButton.setFixedSize(50, 25)
+        timeButton.setStyleSheet('font-size: 9pt;')
+        
+        # default time is selected at the start
+        timeButton.setDisabled(True)
+        self.pomoButtonActive = timeButton
+        
+        doubleTimeButton = QtGui.QPushButton('50', pomoTab)
+        doubleTimeButton.setToolTip('Double length Pomodoro (counts as two)')
+        doubleTimeButton.setFixedSize(50, 25)
+        doubleTimeButton.setStyleSheet('font-size: 9pt;')
+        
+        pauseButton = QtGui.QPushButton('5', pomoTab)
+        pauseButton.setToolTip('Short pause')
+        pauseButton.setFixedSize(50, 25)
+        pauseButton.setStyleSheet('font-size: 9pt;')
+        
+        
+        doublePauseButton = QtGui.QPushButton('10', pomoTab)
+        doublePauseButton.setToolTip('Long pause')
+        doublePauseButton.setFixedSize(50, 25)
+        doublePauseButton.setStyleSheet('font-size: 9pt;')
+
+
+        mainButton.connect(mainButton, QtCore.SIGNAL('clicked()'), self.onClickedPomoMain)
+        timeButton.connect(timeButton, QtCore.SIGNAL('clicked()'), self.onClickedPomoTime)
+        pauseButton.connect(pauseButton, QtCore.SIGNAL('clicked()'), self.onClickedPomoTime)
+        doubleTimeButton.connect(doubleTimeButton, QtCore.SIGNAL('clicked()'), self.onClickedPomoTime)
+        doublePauseButton.connect(doublePauseButton, QtCore.SIGNAL('clicked()'), self.onClickedPomoTime)
+        
+        
+        # save button references for usage in other methods
+        self.pomoButtons = dict()
+        self.pomoButtons['main'] = mainButton
+        self.pomoButtons['time'] = timeButton
+        self.pomoButtons['doubleTime'] = doubleTimeButton
+        self.pomoButtons['pause'] = pauseButton
+        self.pomoButtons['doublePause'] = doublePauseButton
+        
+
+    
+        firstRow = QtGui.QHBoxLayout()
+        firstRow.addWidget(taskEdit)
+        
+        secondRow = QtGui.QHBoxLayout()
+        secondRow.addStretch()
+        secondRow.addWidget(pauseButton)
+        secondRow.addWidget(doublePauseButton)
+        secondRow.addStretch()
+        secondRow.addWidget(timeButton)
+        secondRow.addWidget(doubleTimeButton)
+        secondRow.addStretch()
+        
+        thirdRow = QtGui.QHBoxLayout()
+        thirdRow.addWidget(mainButton)
+        
+        vbox = QtGui.QVBoxLayout()
+        vbox.addStretch(0.05)
+        vbox.addLayout(firstRow)
+        vbox.addStretch(0.25)
+        vbox.addLayout(secondRow)
+        vbox.addStretch(0.25)
+        vbox.addLayout(thirdRow)
+        vbox.addStretch(0.33)
+        
+        pomoTab.setLayout(vbox) 
+        
+        return pomoTab
+        
+    def initStatsTab(self):
         statsTab = QtGui.QWidget()
         
-        stats_table = QtGui.QTableWidget(5,5)
-        stats_table.setShowGrid(True)
+        table = QtGui.QTableWidget(5,5)
+        table.setShowGrid(True)
         
         for i in range(0,3):
-            stats_checkBox = QtGui.QCheckBox()
-            stats_checkWidget = QtGui.QWidget()
-            stats_checkLayout = QtGui.QHBoxLayout(stats_checkWidget)
-            stats_checkLayout.addWidget(stats_checkBox)
-            stats_checkLayout.setAlignment(QtCore.Qt.AlignCenter)
-            stats_checkLayout.setContentsMargins(0,0,0,0)
-            stats_checkWidget.setLayout(stats_checkLayout)
-            stats_table.setCellWidget(i,0, stats_checkWidget)
+            checkBox = QtGui.QCheckBox()
+            checkWidget = QtGui.QWidget()
+            checkLayout = QtGui.QHBoxLayout(checkWidget)
+            checkLayout.addWidget(checkBox)
+            checkLayout.setAlignment(QtCore.Qt.AlignCenter)
+            checkLayout.setContentsMargins(0,0,0,0)
+            checkWidget.setLayout(checkLayout)
+            table.setCellWidget(i,0, checkWidget)
         
         item = QtGui.QTableWidgetItem()
         item.setText("test")
         item.setFlags(QtCore.Qt.ItemIsEnabled)
         
-        stats_table.setItem(0,1,item)
-        stats_table.setSelectionMode(QtGui.QAbstractItemView.NoSelection)
+        table.setItem(0,1,item)
+        table.setSelectionMode(QtGui.QAbstractItemView.NoSelection)
         
         
-        stats_table.setHorizontalHeaderLabels(["", "name", "pomos", "hours", "last"])
-        stats_table.verticalHeader().setVisible(False)
-        stats_table.resizeColumnsToContents()
+        table.setHorizontalHeaderLabels(["", "name", "pomos", "hours", "last"])
+        table.verticalHeader().setVisible(False)
+        table.resizeColumnsToContents()
         
         
-        stats_hbox = QtGui.QHBoxLayout()
-        stats_hbox.addWidget(stats_table)
+        hbox = QtGui.QHBoxLayout()
+        hbox.addWidget(table)
         
         
-        statsTab.setLayout(stats_hbox) 
+        statsTab.setLayout(hbox)
         
-        # about tab
+        return statsTab 
         
+        
+        
+    def initAboutTab(self):
         aboutTab = QtGui.QWidget()
         
         aboutText = QtGui.QLabel("Blabla")
         
-        about_vbox = QtGui.QVBoxLayout()
-        about_hbox = QtGui.QHBoxLayout()
+        vbox = QtGui.QVBoxLayout()
+        hbox = QtGui.QHBoxLayout()
         
-        about_hbox.addStretch()
-        about_hbox.addWidget(aboutText)
-        about_hbox.addStretch()
+        hbox.addStretch()
+        hbox.addWidget(aboutText)
+        hbox.addStretch()
         
-        about_vbox.addStretch()
-        about_vbox.addLayout(about_hbox)
-        about_vbox.addStretch()
+        vbox.addStretch()
+        vbox.addLayout(hbox)
+        vbox.addStretch()
         
-        aboutTab.setLayout(about_vbox) 
+        aboutTab.setLayout(vbox) 
         
-        # init tab Widget
+        return aboutTab
+        
+        
+        
+    def initUI(self):      
+        self.setFixedSize(420, 255)
+        self.move(250,250)
+        self.setWindowTitle('Pomodorian')
+        self.setWindowIcon(QtGui.QIcon('/usr/share/icons/pomodorian.png'))
+        
+        pomoTab = self.initPomoTab()
+        statsTab = self.initStatsTab()
+        aboutTab = self.initAboutTab()
         
         tabWidget = QtGui.QTabWidget(self)
         tabWidget.resize(419,254)
@@ -132,23 +182,44 @@ class PomoWindow(QtGui.QWidget):
         
         self.show()
         
-    def keyPressEvent(self, e):
         
+        
+    def keyPressEvent(self, e):
         if e.key() == QtCore.Qt.Key_Escape:
             self.close()
             
-    def sendTick(self, val):
-        if self.pomoBTN.text() is not 'Start':
-            newVal = 25*60 - val
-            newVal = "{0:0>2}:{1:0>2}".format(math.floor(newVal/60),newVal % 60)
-            self.pomoBTN.setText(newVal)
             
-    def onClicked(self):
+            
+    def sendTick(self, val):
+        if self.pomoButtons['main'].text() != 'Start':
+            newVal = int(self.pomoButtonActive.text())*60 - val
+            newVal = "{0:0>2}:{1:0>2}".format(math.floor(newVal/60),newVal % 60)
+            self.pomoButtons['main'].setText(newVal)
+            if newVal == '00:00':
+                self.pomo.finishTimer(int(self.pomoButtonActive.text()))
+                self.resetPomoTab()
+                    
+            
+    def resetPomoTab(self):
+        self.pomoTaskEdit.setDisabled(False)
+        self.pomoButtons['main'].setText("Start")
+        for k,v in self.pomoButtons.items():
+            if k != 'main' and v is not self.pomoButtonActive:
+                v.setDisabled(False)
+            
+            
+            
+    def onClickedPomoMain(self):
         sender = self.sender()
         
         if sender.text() == 'Start':
-            sender.setText("25:00")
+            self.pomoTaskEdit.setDisabled(True)
+            for k,v in self.pomoButtons.items():
+                if k != 'main':
+                    v.setDisabled(True)
+            sender.setText("{0:0>2}:00".format(int(self.pomoButtonActive.text())))
             self.pomo.startTimer()
+            
         else:
             self.pomo.stopTimer()
             reply = QtGui.QMessageBox.question(self, 'Timer paused',
@@ -156,11 +227,23 @@ class PomoWindow(QtGui.QWidget):
             QtGui.QMessageBox.No, QtGui.QMessageBox.No)
             
             if reply == QtGui.QMessageBox.Yes:
-                sender.setText("Start")
+                self.resetPomoTab()
                 self.pomo.resetTimer()
             else:
                 self.pomo.startTimer()
+                
+                
+                
+    def onClickedPomoTime(self):
+        sender = self.sender()
         
+        if self.pomoButtons['main'].text() == 'Start':
+            self.pomoButtonActive.setDisabled(False)
+            sender.setDisabled(True)
+            self.pomoButtonActive = sender
+        
+
+
 
 def initGUI(pomo):
     app = QtGui.QApplication(sys.argv)
