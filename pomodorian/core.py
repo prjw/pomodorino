@@ -1,22 +1,12 @@
-import configparser, os, threading, time, math
+import threading, time, math
 
 from pomodorian.utils import *
 from pomodorian.gui import initGUI
 from pomodorian.data import initData
 
 
-class MyThread(threading.Thread):
-    def __init__(self, event, fun):
-        threading.Thread.__init__(self)
-        self.stopped = event
-        self.fun = fun
-
-    def run(self):
-        while not self.stopped.wait(0.5):
-            self.fun
-
 class PomoCore():
-    def __init__(self, config):
+    def __init__(self):
         super(PomoCore, self).__init__()
         self.timerCount = 0
         
@@ -45,56 +35,15 @@ class PomoCore():
         self.stopTimer()
         self.timerCount = 0
         
-    def finishTimer(self, minutes):
-        # get task
+    def finishTimer(self, minutes, task):
         self.resetTimer()
         pomos = math.ceil(minutes / 25)
-        if pomos >= 1:
-            # add pomodoro to current task
+        if pomos >= 1 and task != '':
+            self.pomoData.addPomo(task, pomos)
             pass
-            
-        
-
-
-def writeDefaultConfig(configPath):
-    if configPath == '':
-        fatalError("Error while initializing config")
-        
-    config = configparser.ConfigParser()
-        
-    if not os.path.exists(configPath):
-            os.makedirs(configPath)
-    with open(configPath + "/pomo.cfg", 'w+') as configfile:
-        config.write(configfile)
-            
-    return config
-
-
-def validateConfig(config):
-    return False
-
-
-def initConfig():
-    config = configparser.ConfigParser()
-    configPath = os.path.expanduser("~/.pomodorian");    
-        
-    try:
-        config.read_file(open(configPath + "/pomo.cfg"))
-    except IOError:
-        config = writeDefaultConfig(configPath)
-    else:
-        if validateConfig(config) == False:
-            config = writeDefaultConfig(configPath)
-
-            
-    return config
-    #if open config
-    #load values
-    #else create new config with default values
 
 
 def run():
-    config = initConfig()
-    pomo = PomoCore(config)
+    pomo = PomoCore()
+    initData(pomo)
     initGUI(pomo)
-    initData()

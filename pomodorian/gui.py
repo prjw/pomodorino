@@ -144,7 +144,7 @@ class PomoWindow(QtGui.QWidget):
     def initAboutTab(self):
         aboutTab = QtGui.QWidget()
         
-        aboutText = QtGui.QLabel("Blabla")
+        aboutText = QtGui.QLabel("Pomodorian is a simple pomodoro application written in Python3 using PyQt4 and SQLite3.")
         
         vbox = QtGui.QVBoxLayout()
         hbox = QtGui.QHBoxLayout()
@@ -196,12 +196,14 @@ class PomoWindow(QtGui.QWidget):
             newVal = "{0:0>2}:{1:0>2}".format(math.floor(newVal/60),newVal % 60)
             self.pomoButtons['main'].setText(newVal)
             if newVal == '00:00':
-                self.pomo.finishTimer(int(self.pomoButtonActive.text()))
+                self.pomo.finishTimer(int(self.pomoButtonActive.text()), self.pomoTaskEdit.currentText())
                 self.resetPomoTab()
                     
             
     def resetPomoTab(self):
-        self.pomoTaskEdit.setDisabled(False)
+        if self.pomoButtonActive != self.pomoButtons['pause'] and self.pomoButtonActive != self.pomoButtons['doublePause']:
+            self.pomoTaskEdit.setDisabled(False)
+            
         self.pomoButtons['main'].setText("Start")
         for k,v in self.pomoButtons.items():
             if k != 'main' and v is not self.pomoButtonActive:
@@ -213,12 +215,15 @@ class PomoWindow(QtGui.QWidget):
         sender = self.sender()
         
         if sender.text() == 'Start':
-            self.pomoTaskEdit.setDisabled(True)
-            for k,v in self.pomoButtons.items():
-                if k != 'main':
-                    v.setDisabled(True)
-            sender.setText("{0:0>2}:00".format(int(self.pomoButtonActive.text())))
-            self.pomo.startTimer()
+            if self.pomoTaskEdit.currentText() != '' or self.pomoTaskEdit.isEnabled() is False:
+                self.pomoTaskEdit.setDisabled(True)
+                for k,v in self.pomoButtons.items():
+                    if k != 'main':
+                        v.setDisabled(True)
+                sender.setText("{0:0>2}:00".format(int(self.pomoButtonActive.text())))
+                self.pomo.startTimer()
+            else:
+                QtGui.QMessageBox.warning(self, 'Error: No task specified', "You have to choose a task, activity or project")
             
         else:
             self.pomo.stopTimer()
@@ -241,6 +246,11 @@ class PomoWindow(QtGui.QWidget):
             self.pomoButtonActive.setDisabled(False)
             sender.setDisabled(True)
             self.pomoButtonActive = sender
+            
+            if sender == self.pomoButtons['pause'] or sender == self.pomoButtons['doublePause']:
+                self.pomoTaskEdit.setDisabled(True)
+            else:
+                self.pomoTaskEdit.setDisabled(False)
         
 
 
