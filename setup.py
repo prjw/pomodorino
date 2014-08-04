@@ -1,5 +1,7 @@
-from setuptools import setup, find_packages
+import os
 import shutil
+
+from setuptools import setup, find_packages
 
 DEV = True
 
@@ -24,6 +26,8 @@ while choice != 'y' and choice != 'n':
 if choice == 'y':
     shutil.copyfile("data/pomodorian.desktop", "/usr/share/applications/pomodorian.desktop")     
     shutil.copyfile("data/pomodorian.png", "/usr/share/icons/pomodorian.png")     
+    os.makedirs("/usr/share/sounds/pomodorian", exist_ok=True)
+    shutil.copyfile("data/ring.wav", "/usr/share/sounds/pomodorian/ring.wav") 
      
 if DEV == True:
     print("Cleanup this directory? [y/n]: ")

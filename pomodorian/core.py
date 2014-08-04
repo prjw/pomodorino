@@ -1,4 +1,6 @@
-import threading, time, math
+import threading
+import time
+import math
 
 from pomodorian.utils import *
 from pomodorian.gui import initGUI
@@ -19,14 +21,18 @@ class PomoCore():
     def startTimer(self):
         self.timerActive = 1
         self.timerFix = time.time()+1
-        threading.Timer(self.timerFix - time.time(), self.tickTimer).start()
+        timer = threading.Timer(self.timerFix - time.time(), self.tickTimer)
+        timer.daemon = True
+        timer.start()
         
     def tickTimer(self):
         if self.timerActive == 1:
             self.timerCount += 1
             self.timerFix += 1
-            self.pomoGUI.sendTick(self.timerCount)
-            threading.Timer(self.timerFix - time.time(), self.tickTimer).start()
+            self.pomoGUI.receiveTick(self.timerCount)
+            timer = threading.Timer(self.timerFix - time.time(), self.tickTimer)
+            timer.daemon = True
+            timer.start()
     
     def stopTimer(self):
         self.timerActive = 0
@@ -39,9 +45,12 @@ class PomoCore():
         self.resetTimer()
         pomos = math.ceil(minutes / 25)
         if pomos >= 1 and task != '':
-            self.pomoData.addPomo(task, pomos)
-            pass
+            newTask = self.pomoData.addPomo(task, pomos)
+            if newTask == True:
+                self.pomoGUI.addTask(task)
 
+    def getAllTasks(self):
+        return self.pomoData.getTasks()
 
 def run():
     pomo = PomoCore()

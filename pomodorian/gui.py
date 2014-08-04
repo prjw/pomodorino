@@ -1,27 +1,40 @@
+import sys
+import math
+import wave
+import threading
+
 from PyQt4 import QtGui, QtCore
+import alsaaudio
+
 from pomodorian.utils import *
-import sys, math
+
 
 
 class PomoWindow(QtGui.QWidget):
     
     def __init__(self, pomo):
         super(PomoWindow, self).__init__()
-        
         self.pomo = pomo
-        
         self.initUI()
-        
+        self.initAudio()
+
         
     def initPomoTab(self):
         pomoTab = QtGui.QWidget()
+        
+        tasks = self.pomo.getAllTasks()
         
         taskEdit = QtGui.QComboBox()
         taskEdit.setEditable(True)
         taskEdit.lineEdit().setMaxLength(45)
         taskEdit.lineEdit().setPlaceholderText("task / activity / project")
         taskEdit.setFixedSize(354,29)
+        taskEdit.setInsertPolicy(QtGui.QComboBox.InsertAlphabetically)
         taskEdit.setStyleSheet('font-size: 11pt;')
+        
+        for i,t in tasks:
+            taskEdit.addItem(t, None)
+        
         self.pomoTaskEdit = taskEdit
         
         
@@ -45,7 +58,7 @@ class PomoWindow(QtGui.QWidget):
         doubleTimeButton.setFixedSize(50, 25)
         doubleTimeButton.setStyleSheet('font-size: 9pt;')
         
-        pauseButton = QtGui.QPushButton('5', pomoTab)
+        pauseButton = QtGui.QPushButton('1', pomoTab)
         pauseButton.setToolTip('Short pause')
         pauseButton.setFixedSize(50, 25)
         pauseButton.setStyleSheet('font-size: 9pt;')
@@ -102,13 +115,17 @@ class PomoWindow(QtGui.QWidget):
         
         return pomoTab
         
+        
+        
     def initStatsTab(self):
         statsTab = QtGui.QWidget()
+
+        tasks = self.pomo.getAllTasks()
         
-        table = QtGui.QTableWidget(5,5)
+        table = QtGui.QTableWidget(len(tasks),5)
         table.setShowGrid(True)
         
-        for i in range(0,3):
+        for i,t in tasks:
             checkBox = QtGui.QCheckBox()
             checkWidget = QtGui.QWidget()
             checkLayout = QtGui.QHBoxLayout(checkWidget)
@@ -116,13 +133,13 @@ class PomoWindow(QtGui.QWidget):
             checkLayout.setAlignment(QtCore.Qt.AlignCenter)
             checkLayout.setContentsMargins(0,0,0,0)
             checkWidget.setLayout(checkLayout)
-            table.setCellWidget(i,0, checkWidget)
+            table.setCellWidget(i-1,0, checkWidget)
+            item = QtGui.QTableWidgetItem()
+            item.setText(t)
+            item.setFlags(QtCore.Qt.ItemIsEnabled)
+            table.setItem(i-1,1,item)
         
-        item = QtGui.QTableWidgetItem()
-        item.setText("test")
-        item.setFlags(QtCore.Qt.ItemIsEnabled)
         
-        table.setItem(0,1,item)
         table.setSelectionMode(QtGui.QAbstractItemView.NoSelection)
         
         
@@ -130,12 +147,37 @@ class PomoWindow(QtGui.QWidget):
         table.verticalHeader().setVisible(False)
         table.resizeColumnsToContents()
         
+        mainButton = QtGui.QCheckBox('All Tasks', statsTab)
+        
+        mainButton2 = QtGui.QComboBox()
+        mainButton2.insertItem (0, "Last Week", None)
+        mainButton2.insertItem (0, "Last Month", None)
+        mainButton2.insertItem (0, "Last 3 Months", None)
+        mainButton2.insertItem (0, "Last 6 Months", None)
+        mainButton2.insertItem (0, "Last Year", None)
+        #mainButton2.setToolTip('This is a <b>QPushButton</b> widget')
+        #mainButton2.setFixedSize(90,30)
+        #mainButton2.setStyleSheet('font-size: 12pt;')
+        
+        mainButton3 = QtGui.QPushButton('Show Daily Statistics', statsTab)
+        #mainButton3.setToolTip('This is a <b>QPushButton</b> widget')
+        #mainButton3.setFixedSize(90,30)
+        #mainButton3.setStyleSheet('font-size: 12pt;')
         
         hbox = QtGui.QHBoxLayout()
-        hbox.addWidget(table)
+        hbox.addStretch()
+        hbox.addWidget(mainButton)
+        hbox.addStretch()
+        hbox.addWidget(mainButton2)
+        hbox.addStretch()
+        hbox.addWidget(mainButton3)
+        hbox.addStretch()
+        vbox = QtGui.QVBoxLayout()
+        vbox.addWidget(table)
+        vbox.addLayout(hbox)
         
         
-        statsTab.setLayout(hbox)
+        statsTab.setLayout(vbox)
         
         return statsTab 
         
@@ -144,7 +186,7 @@ class PomoWindow(QtGui.QWidget):
     def initAboutTab(self):
         aboutTab = QtGui.QWidget()
         
-        aboutText = QtGui.QLabel("Pomodorian is a simple pomodoro application written in Python3 using PyQt4 and SQLite3.")
+        aboutText = QtGui.QLabel("Pomodorian is a simple pomodoro application written in Python3\nusing PyQt4 and SQLite3.")
         
         vbox = QtGui.QVBoxLayout()
         hbox = QtGui.QHBoxLayout()
@@ -183,22 +225,56 @@ class PomoWindow(QtGui.QWidget):
         self.show()
         
         
+    def initAudio(self):
+        # detect audiodevice (alsa/winsound)
         
+        self.audioDevice = alsaaudio.PCM()
+        
+        ring = wave.open("/usr/share/sounds/pomodorian/ring.wav", 'rb')
+        self.audioDevice.setchannels(ring.getnchannels())
+        self.audioDevice.setrate(ring.getframerate())
+        
+        # 8bit is unsigned in wav files
+        if ring.getsampwidth() == 1:
+            self.audioDevice.setformat(alsaaudio.PCM_FORMAT_U8)
+        # Otherwise we assume signed data, little endian
+        elif ring.getsampwidth() == 2:
+            self.audioDevice.setformat(alsaaudio.PCM_FORMAT_S16_LE)
+        elif ring.getsampwidth() == 3:
+            self.audioDevice.setformat(alsaaudio.PCM_FORMAT_S24_LE)
+        elif ring.getsampwidth() == 4:
+            self.audioDevice.setformat(alsaaudio.PCM_FORMAT_S32_LE)
+        else:
+            raise ValueError('Unsupported format')
+
+        self.audioDevice.setperiodsize(320)
+        
+        
+        self.audioData = list()
+        buf = ring.readframes(320)
+        while buf:
+            #Read data from stdin
+            self.audioData.append(buf)
+            #device.write(data)
+            buf = ring.readframes(320)
+            
+            
     def keyPressEvent(self, e):
         if e.key() == QtCore.Qt.Key_Escape:
             self.close()
             
             
             
-    def sendTick(self, val):
+    def receiveTick(self, val):
         if self.pomoButtons['main'].text() != 'Start':
             newVal = int(self.pomoButtonActive.text())*60 - val
             newVal = "{0:0>2}:{1:0>2}".format(math.floor(newVal/60),newVal % 60)
             self.pomoButtons['main'].setText(newVal)
             if newVal == '00:00':
+                self.playRingtone()
                 self.pomo.finishTimer(int(self.pomoButtonActive.text()), self.pomoTaskEdit.currentText())
                 self.resetPomoTab()
-                    
+            
             
     def resetPomoTab(self):
         if self.pomoButtonActive != self.pomoButtons['pause'] and self.pomoButtonActive != self.pomoButtons['doublePause']:
@@ -209,6 +285,9 @@ class PomoWindow(QtGui.QWidget):
             if k != 'main' and v is not self.pomoButtonActive:
                 v.setDisabled(False)
             
+            
+    def addTask(self, taskName):
+        self.pomoTaskEdit.addItem(taskName, None)
             
             
     def onClickedPomoMain(self):
@@ -253,6 +332,16 @@ class PomoWindow(QtGui.QWidget):
                 self.pomoTaskEdit.setDisabled(False)
         
 
+
+    def playRingtone(self):
+        t = threading.Thread(target=self.playRingThread)
+        t.daemon = True  # kills thread on exit
+        t.start()
+        
+
+    def playRingThread(self):
+        for data in self.audioData:
+            self.audioDevice.write(data)
 
 
 def initGUI(pomo):
