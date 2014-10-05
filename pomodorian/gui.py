@@ -147,7 +147,12 @@ class PomoWindow(QtGui.QWidget):
         table.verticalHeader().setVisible(False)
         table.resizeColumnsToContents()
         
+        self.statsTable = table
+        
         mainButton = QtGui.QCheckBox('All Tasks', statsTab)
+        
+        mainButton.connect(mainButton, QtCore.SIGNAL('clicked()'), self.onClickedStatsAll)
+
         
         mainButton2 = QtGui.QComboBox()
         mainButton2.insertItem (0, "Last Week", None)
@@ -332,7 +337,16 @@ class PomoWindow(QtGui.QWidget):
                 self.pomoTaskEdit.setDisabled(False)
         
 
-
+    def onClickedStatsAll(self):
+        sender = self.sender()
+        state = sender.isChecked()
+        
+        for i in range(0, self.statsTable.rowCount()):
+            item = self.statsTable.cellWidget(i, 0)
+            checkbox = item.layout().itemAt(0).widget()
+            checkbox.setChecked(state)
+        
+        
     def playRingtone(self):
         t = threading.Thread(target=self.playRingThread)
         t.daemon = True  # kills thread on exit
