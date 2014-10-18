@@ -1,4 +1,5 @@
 import sys
+import datetime
 import math
 import wave
 import threading
@@ -17,6 +18,22 @@ class PomoWindow(QtGui.QWidget):
         self.pomo = pomo
         self.initUI()
         self.initAudio()
+        
+        
+    def closeEvent(self, event):
+        if self.pomo.isTimerRunning():
+            self.pomo.stopTimer()
+            reply = QtGui.QMessageBox.question(self, 'Timer paused',
+            "Do you really want to abort the running timer?", QtGui.QMessageBox.Yes | 
+            QtGui.QMessageBox.No, QtGui.QMessageBox.No)
+            
+            if reply == QtGui.QMessageBox.Yes:
+                event.accept()
+            else:
+                event.ignore()
+                self.pomo.startTimer()
+        else:
+            event.accept()
 
         
     def initPomoTab(self):
@@ -32,8 +49,8 @@ class PomoWindow(QtGui.QWidget):
         taskEdit.setInsertPolicy(QtGui.QComboBox.InsertAlphabetically)
         taskEdit.setStyleSheet('font-size: 11pt;')
         
-        for i,t in tasks:
-            taskEdit.addItem(t, None)
+        for taskID, taskName, pomoCount, pomoLast in tasks:
+            taskEdit.addItem(taskName, None)
         
         self.pomoTaskEdit = taskEdit
         
@@ -122,30 +139,62 @@ class PomoWindow(QtGui.QWidget):
 
         tasks = self.pomo.getAllTasks()
         
-        table = QtGui.QTableWidget(len(tasks),5)
+        table = QtGui.QTableWidget(len(tasks),6)
         table.setShowGrid(True)
         
-        for i,t in tasks:
+        for taskID, taskName, pomoCount, pomoLast in tasks:
             checkBox = QtGui.QCheckBox()
             checkWidget = QtGui.QWidget()
             checkLayout = QtGui.QHBoxLayout(checkWidget)
             checkLayout.addWidget(checkBox)
             checkLayout.setAlignment(QtCore.Qt.AlignCenter)
-            checkLayout.setContentsMargins(0,0,0,0)
+            checkLayout.setContentsMargins(0, 0, 0, 0)
             checkWidget.setLayout(checkLayout)
-            table.setCellWidget(i-1,0, checkWidget)
+            table.setCellWidget(taskID - 1 , 0, checkWidget)
+            
+            
             item = QtGui.QTableWidgetItem()
-            item.setText(t)
+            item.setText(taskName)
             item.setFlags(QtCore.Qt.ItemIsEnabled)
-            table.setItem(i-1,1,item)
+            table.setItem(taskID - 1 , 1, item)
+            
+            item = QtGui.QTableWidgetItem()
+            item.setText(str(pomoCount))
+            item.setFlags(QtCore.Qt.ItemIsEnabled)
+            table.setItem(taskID - 1 , 2, item)
+            
+            item = QtGui.QTableWidgetItem()
+            item.setText(str(round((pomoCount * 25) / 60, 2)))
+            item.setFlags(QtCore.Qt.ItemIsEnabled)
+            table.setItem(taskID - 1 , 3, item)
+            
+            
+            pomoLastDate = datetime.datetime.fromtimestamp(pomoLast)
+            item = QtGui.QTableWidgetItem()
+            item.setText(pomoLastDate.strftime("%x"))
+            item.setFlags(QtCore.Qt.ItemIsEnabled)
+            table.setItem(taskID - 1 , 4, item)
+            
+            delButton = QtGui.QPushButton('x', statsTab)
+            delButton.setToolTip('Delete all pomodoros')
+            delButton.setFixedSize(40, 20)
+            delButton.setStyleSheet('font-size: 8pt;')
+            btnWidget = QtGui.QWidget()
+            btnLayout = QtGui.QHBoxLayout(btnWidget)
+            btnLayout.addWidget(delButton)
+            btnLayout.setAlignment(QtCore.Qt.AlignCenter)
+            btnLayout.setContentsMargins(0, 0, 0, 0)
+            btnWidget.setLayout(btnLayout)
+            table.setCellWidget(taskID - 1 , 5, btnWidget)
         
         
         table.setSelectionMode(QtGui.QAbstractItemView.NoSelection)
         
         
-        table.setHorizontalHeaderLabels(["", "name", "pomos", "hours", "last"])
+        table.setHorizontalHeaderLabels(["", "name", "pomos", "hours", "last", "delete"])
         table.verticalHeader().setVisible(False)
         table.resizeColumnsToContents()
+        table.setColumnWidth(1, 157)
         
         self.statsTable = table
         

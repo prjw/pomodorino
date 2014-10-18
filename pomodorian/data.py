@@ -52,12 +52,12 @@ class PomoData():
             self.conn.commit()
             return newTask
         
-    def getTaskID(self, taskName):
+    def getTaskID(self, name):
         # since we assume that the number of tasks will be far less than 1000 for most users, optimization has low priority at the moment
-        for i,t in self.tasks:
-            if t == taskName:
-                return i, False
-        return self.insertTask(taskName), True
+        for taskID, taskName, pomoCount, pomoLast in self.tasks:
+            if taskName == name:
+                return taskID, False
+        return self.insertTask(name), True
         
         
     def getTasks(self):
@@ -68,14 +68,27 @@ class PomoData():
         if self.connected is True:
             self.c.execute("INSERT INTO Tasks(Name) VALUES(\"" + taskName + "\")")
             self.conn.commit()
-            i = self.c.lastrowid
-            self.tasks.append((i, taskName))
-            return i
+            taskID = self.c.lastrowid
+            self.tasks.append((taskID, taskName, 0, 0))
+            return taskID
         
     def readDB(self):
         if self.connected is True:
-            self.c.execute("SELECT * FROM Tasks")
-            self.tasks = self.c.fetchall()
+            self.c.execute("SELECT * FROM Tasks ORDER BY ID ASC")
+            tasks = self.c.fetchall()
+            
+            self.c.execute("SELECT TaskID, count(TaskID), MAX(Timestamp) FROM Pomos GROUP BY TaskID ORDER BY TaskID ASC")
+            pomoData = self.c.fetchall()
+            
+            self.tasks = list()
+            counter = 0
+            for taskID, taskName in tasks:
+                data = pomoData[counter]
+                pomoCount = data[1]
+                pomoLast = data[2]
+                
+                self.tasks.append([taskID, taskName, pomoCount, pomoLast])
+                counter += 1
         
         
     def closeDB(self):

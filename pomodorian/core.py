@@ -10,13 +10,18 @@ from pomodorian.data import initData
 class PomoCore():
     def __init__(self):
         super(PomoCore, self).__init__()
-        self.timerCount = 0
+        self.resetTimer()
         
     def setGUI(self, pomoGUI):
         self.pomoGUI = pomoGUI
         
     def setData(self, pomoData):
         self.pomoData = pomoData
+        
+    def isTimerRunning(self):
+        if self.timerActive == 1:
+            return True
+        return False
         
     def startTimer(self):
         self.timerActive = 1
