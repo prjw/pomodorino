@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <general>
+        <string name="app_name">pomodorian</string>
+        <string name="app_version">0.1</string>
+    </general>
+    <guitext>
+        <string name="tab_pomo">pomo</string>
+        <string name="tab_stats">stats</string>
+        <string name="tab_about">about</string>
+        <string name="input_task">task / activity / project</string>
+        <string name="btn_start">start</string>
+        <string name="lbl_shortpause">5</string>
+        <string name="ttp_shortpause">Short pause (5min)</string>
+        <string name="lbl_longpause">10</string>
+        <string name="ttp_longpause">Long pause</string>
+        <string name="lbl_regularpomo">25</string>
+        <string name="ttp_regularpomo">Standard one-size-fits-all Pomodoro</string>
+        <string name="lbl_longpomo">50</string>
+        <string name="ttp_longpomo">Double length Pomodoro (counts as two)</string>
+        <string name="lbl_stats_task">task</string>
+        <string name="lbl_stats_pomos">pomos</string>
+        <string name="lbl_stats_last">last</string>
+        <string name="lbl_stats_all">all tasks</string>
+        <string name="optn_lastweek">Last week</string>
+        <string name="optn_lastmonth">Last month</string>
+        <string name="optn_last3months">Last 3 months</string>
+        <string name="optn_last6months">Last 6 months</string>
+        <string name="optn_lastyear">Last year</string>
+        <string name="btn_showdaily">Show daily statistics</string>
+        <string name="ask_paused_title">Timer paused</string>
+        <string name="ask_paused_text">Do you really want to reset the running timer?</string>
+        <string name="warn_notask_title">Error: No task specified</string>
+        <string name="warn_notask_text">You have to choose a task, activity or project</string>
+
+        
+        <string name="about">pomodorian is a simple pomodoro application
+written in Python3 using PyQT4 and SQLite3.
+Licensed under the GNU GPL.</string>
+    </guitext>
+</resources>

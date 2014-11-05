@@ -6,7 +6,7 @@ from setuptools import setup, find_packages
 DEV = True
 
 setup(name='pomodorian',
-      version='0.0',
+      version='0.1',
       description='A simple pomodoro application written in Python',
       author='prjw',
       author_email='prjw@posteo.de',
@@ -22,12 +22,13 @@ choice = input();
 while choice != 'y' and choice != 'n':
     print("Install icon and desktop entries? [y/n]: ")
     choice = input();
+
     
 if choice == 'y':
     shutil.copyfile("data/pomodorian.desktop", "/usr/share/applications/pomodorian.desktop")     
     shutil.copyfile("data/pomodorian.png", "/usr/share/icons/pomodorian.png")     
     os.makedirs("/usr/share/sounds/pomodorian", exist_ok=True)
-    shutil.copyfile("data/ring.wav", "/usr/share/sounds/pomodorian/ring.wav") 
+    
      
 if DEV == True:
     print("Cleanup this directory? [y/n]: ")
