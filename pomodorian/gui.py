@@ -348,7 +348,7 @@ class PomoWindow(QtGui.QWidget):
         if self.pomo.isTimerRunning():
             self.pomo.stopTimer()
             
-            if promptUser("ask_paused"):
+            if self.promptUser("ask_paused"):
                 event.accept()
             else:
                 event.ignore()
