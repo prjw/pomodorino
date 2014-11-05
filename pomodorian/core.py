@@ -13,7 +13,7 @@ class PomoCore():
         Makes necessary variable initializations and calls other init methods.
         """
         super(PomoCore, self).__init__()
-        self.timerActive = 0
+        self.timerActive = False
         self.timerCount = 0
         self.initStrings()
 
@@ -59,16 +59,14 @@ class PomoCore():
         """
         Returns the boolean status of the timer activity.
         """
-        if self.timerActive == 1:
-            return True
-        return False
+        return self.timerActive
 
         
     def startTimer(self):
         """
         Starts the timer in a new thread, calling a tick function after 1sec.
         """
-        self.timerActive = 1
+        self.timerActive = True
         self.timerFix = time.time()+1
         timer = threading.Timer(self.timerFix - time.time(), self.tickTimer)
         timer.daemon = True
@@ -79,8 +77,8 @@ class PomoCore():
         """
         Stops the running timer.
         """
-        if self.timerActive == 1:
-            self.timerActive = 0
+        if self.timerActive == True:
+            self.timerActive = False
         else:
             raise Warning("Trying to stop an offline timer.")
         
@@ -101,7 +99,7 @@ class PomoCore():
         """
         Primary timer function. Starts a new thread until the timer finishes.
         """
-        if self.timerActive == 1:
+        if self.timerActive == True:
             self.timerCount += 1
             self.timerFix += 1
             self.pomoGUI.receiveTick(self.timerCount)
