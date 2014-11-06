@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <resources>
-    <general>
+    <main>
         <string name="app_name">pomodorian</string>
         <string name="app_version">0.1</string>
-    </general>
-    <guitext>
+    </main>
+    <gui>
         <string name="tab_pomo">pomo</string>
         <string name="tab_stats">stats</string>
         <string name="tab_about">about</string>
@@ -38,5 +38,5 @@
         <string name="about">pomodorian is a simple pomodoro application
 written in Python3 using PyQT4 and SQLite3.
 Licensed under the GNU GPL.</string>
-    </guitext>
+    </gui>
 </resources>

@@ -15,6 +15,7 @@ class PomoCore():
         super(PomoCore, self).__init__()
         self.timerActive = False
         self.timerCount = 0
+        self.timerType = "pomo"
         self.initStrings()
 
 
@@ -106,6 +107,13 @@ class PomoCore():
             timer = threading.Timer(self.timerFix - time.time(), self.tickTimer)
             timer.daemon = True
             timer.start()
+
+
+    def toggleTimerType(self):
+        if self.timerType == "pomo":
+            self.timerType = "pause"
+        else:
+            self.timerType = "pomo"
 
         
     def finishTimer(self, minutes, task):

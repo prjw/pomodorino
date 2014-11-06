@@ -19,6 +19,13 @@ class PomoWindow(QtGui.QWidget):
         self.pomo = pomo
         self.initUI()
         self.initAudio()
+
+        
+    def getString(self, cat, identifier):
+        """
+        Calls the pomo getString function to enhance readability.
+        """
+        return self.pomo.getString(cat, identifier)
         
         
     def initUI(self):      
@@ -27,7 +34,7 @@ class PomoWindow(QtGui.QWidget):
         """
         self.setFixedSize(460, 275)
         self.move(250,250)
-        self.setWindowTitle(self.pomo.getString("general", "app_name"))
+        self.setWindowTitle(self.getString("main", "app_name"))
         self.setWindowIcon(QtGui.QIcon('/usr/share/icons/pomodorian.png'))
         
         # Initialize our three tabs
@@ -38,9 +45,9 @@ class PomoWindow(QtGui.QWidget):
         tabWidget = QtGui.QTabWidget(self)
         tabWidget.resize(459,274)
         
-        tabWidget.addTab(pomoTab, self.pomo.getString("guitext", "tab_pomo"))
-        tabWidget.addTab(statsTab, self.pomo.getString("guitext", "tab_stats"))
-        tabWidget.addTab(aboutTab, self.pomo.getString("guitext", "tab_about"))
+        tabWidget.addTab(pomoTab, self.getString("gui", "tab_pomo"))
+        tabWidget.addTab(statsTab, self.getString("gui", "tab_stats"))
+        tabWidget.addTab(aboutTab, self.getString("gui", "tab_about"))
         
         # Show the window
         self.show()
@@ -91,100 +98,84 @@ class PomoWindow(QtGui.QWidget):
         
         tasks = self.pomo.getAllTasks()
         
-        taskEdit = QtGui.QComboBox()
-        taskEdit.setEditable(True)
-        taskEdit.lineEdit().setMaxLength(64)
-        taskEdit.lineEdit().setPlaceholderText(self.pomo.getString("guitext",
-                                               "input_task"))
-        taskEdit.setFixedSize(365,30)
-        taskEdit.setInsertPolicy(QtGui.QComboBox.InsertAlphabetically)
-        taskEdit.setStyleSheet('font-size: 11pt;')
+        taskBar = QtGui.QComboBox()
+        taskBar.setEditable(True)
+        taskBarLine = taskBar.lineEdit()
+        taskBarLine.setMaxLength(64)
+        taskBarLine.setPlaceholderText(self.getString("gui", "input_task"))
+        taskBar.setFixedSize(365,30)
+        taskBar.setInsertPolicy(QtGui.QComboBox.InsertAlphabetically)
+        taskBar.setStyleSheet('font-size: 11pt;')
         
         for taskID, taskName, pomoCount, pomoLast in tasks:
-            taskEdit.addItem(taskName, None)
+            taskBar.addItem(taskName, None)
         
-        self.pomoTaskEdit = taskEdit
+        self.pomoTaskBar = taskBar
         
         
-        mainButton = QtGui.QPushButton(self.pomo.getString("guitext",
-                                       "btn_start"), pomoTab)
-        mainButton.setFixedSize(170, 55)
-        mainButton.setStyleSheet('font-size: 16pt;')
+        mainBtn = QtGui.QPushButton(self.getString("gui", "btn_start"), pomoTab)
+        mainBtn.setFixedSize(170, 55)
+        mainBtn.setStyleSheet('font-size: 16pt;')
 
         
-        timeButton = QtGui.QPushButton(self.pomo.getString("guitext",
-                                       "lbl_regularpomo"), pomoTab)
-        timeButton.setToolTip(self.pomo.getString("guitext",
-                            "ttp_regularpomo"))
-        timeButton.setFixedSize(50, 25)
-        timeButton.setStyleSheet('font-size: 9pt;')
+        timeBtn = QtGui.QPushButton(
+                self.getString("gui", "lbl_regularpomo"), pomoTab)
+        timeBtn.setToolTip(self.getString("gui", "ttp_regularpomo"))
+        timeBtn.setFixedSize(50, 25)
+        timeBtn.setStyleSheet('font-size: 9pt;')
 
         
         # default time is selected at the start
-        timeButton.setDisabled(True)
-        self.pomoButtonActive = timeButton
+        timeBtn.setDisabled(True)
+        self.pomoButtonActive = timeBtn
 
         
-        doubleTimeButton = QtGui.QPushButton(self.pomo.getString("guitext",
-                                             "lbl_longpomo"), pomoTab)
-        doubleTimeButton.setToolTip(self.pomo.getString("guitext",
-                                    "ttp_longpomo"))
-        doubleTimeButton.setFixedSize(50, 25)
-        doubleTimeButton.setStyleSheet('font-size: 9pt;')
+        longTimeBtn = QtGui.QPushButton(
+                self.getString("gui", "lbl_longpomo"), pomoTab)
+        longTimeBtn.setToolTip(self.getString("gui", "ttp_longpomo"))
+        longTimeBtn.setFixedSize(50, 25)
+        longTimeBtn.setStyleSheet('font-size: 9pt;')
 
         
-        pauseButton = QtGui.QPushButton(self.pomo.getString("guitext",
-                                        "lbl_shortpause"), pomoTab)
-        pauseButton.setToolTip(self.pomo.getString("guitext",
-                               "ttp_shortpause"))
-        pauseButton.setFixedSize(50, 25)
-        pauseButton.setStyleSheet('font-size: 9pt;')
+        pauseBtn = QtGui.QPushButton(
+                self.getString("gui", "lbl_shortpause"), pomoTab)
+        pauseBtn.setToolTip(self.getString("gui", "ttp_shortpause"))
+        pauseBtn.setFixedSize(50, 25)
+        pauseBtn.setStyleSheet('font-size: 9pt;')
         
         
-        doublePauseButton = QtGui.QPushButton(self.pomo.getString("guitext",
-                                              "lbl_longpause"), pomoTab)
-        doublePauseButton.setToolTip(self.pomo.getString("guitext",
-                                     "ttp_longpause"))
-        doublePauseButton.setFixedSize(50, 25)
-        doublePauseButton.setStyleSheet('font-size: 9pt;')
+        longPauseBtn = QtGui.QPushButton(
+                self.getString("gui", "lbl_longpause"), pomoTab)
+        longPauseBtn.setToolTip(self.getString("gui", "ttp_longpause"))
+        longPauseBtn.setFixedSize(50, 25)
+        longPauseBtn.setStyleSheet('font-size: 9pt;')
 
 
-        mainButton.connect(mainButton, QtCore.SIGNAL('clicked()'),
-                           self.onClickedPomoMain)
-        timeButton.connect(timeButton, QtCore.SIGNAL('clicked()'),
-                           self.onClickedPomoTime)
-        pauseButton.connect(pauseButton, QtCore.SIGNAL('clicked()'),
-                            self.onClickedPomoTime)
-        doubleTimeButton.connect(doubleTimeButton, QtCore.SIGNAL('clicked()'),
-                                 self.onClickedPomoTime)
-        doublePauseButton.connect(doublePauseButton, QtCore.SIGNAL('clicked()'),
-                                  self.onClickedPomoTime)
-        
-        
-        # save button references for usage in other methods
-        self.pomoButtons = dict()
-        self.pomoButtons['main'] = mainButton
-        self.pomoButtons['time'] = timeButton
-        self.pomoButtons['doubleTime'] = doubleTimeButton
-        self.pomoButtons['pause'] = pauseButton
-        self.pomoButtons['doublePause'] = doublePauseButton
-        
+        # Save button references for later usage.
+        self.pomoBtns = dict()
+        self.pomoBtns['main'] = mainBtn
+        self.pomoBtns['time'] = timeBtn
+        self.pomoBtns['longTime'] = longTimeBtn
+        self.pomoBtns['pause'] = pauseBtn
+        self.pomoBtns['longPause'] = longPauseBtn
 
+        for name, button in self.pomoBtns.items():
+            button.connect(button, QtCore.SIGNAL('clicked()'), self.onClicked)
     
         firstRow = QtGui.QHBoxLayout()
-        firstRow.addWidget(taskEdit)
+        firstRow.addWidget(taskBar)
         
         secondRow = QtGui.QHBoxLayout()
         secondRow.addStretch()
-        secondRow.addWidget(pauseButton)
-        secondRow.addWidget(doublePauseButton)
+        secondRow.addWidget(pauseBtn)
+        secondRow.addWidget(longPauseBtn)
         secondRow.addStretch()
-        secondRow.addWidget(timeButton)
-        secondRow.addWidget(doubleTimeButton)
+        secondRow.addWidget(timeBtn)
+        secondRow.addWidget(longTimeBtn)
         secondRow.addStretch()
         
         thirdRow = QtGui.QHBoxLayout()
-        thirdRow.addWidget(mainButton)
+        thirdRow.addWidget(mainBtn)
         
         vbox = QtGui.QVBoxLayout()
         vbox.addStretch(0.05)
@@ -244,47 +235,40 @@ class PomoWindow(QtGui.QWidget):
         table.setSelectionMode(QtGui.QAbstractItemView.NoSelection)
         
         
-        table.setHorizontalHeaderLabels(["", self.pomo.getString("guitext",
-                                                        "lbl_stats_task"),
-                                        self.pomo.getString("guitext",
-                                                        "lbl_stats_pomos"),
-                                        self.pomo.getString("guitext",
-                                                        "lbl_stats_last")])
+        table.setHorizontalHeaderLabels(["",
+                self.getString("gui", "lbl_stats_task"),
+                self.getString("gui", "lbl_stats_pomos"),
+                self.getString("gui", "lbl_stats_last")])
         table.verticalHeader().setVisible(False)
         table.resizeColumnsToContents()
         table.setColumnWidth(1, 278)
         
         self.statsTable = table
         
-        mainButton = QtGui.QCheckBox(self.pomo.getString("guitext",
-                                     "lbl_stats_all"), statsTab)
+        allCheck = QtGui.QCheckBox(self.getString("gui", "lbl_stats_all"),
+                statsTab)
         
-        mainButton.connect(mainButton, QtCore.SIGNAL('clicked()'),
+        allCheck.connect(allCheck, QtCore.SIGNAL('clicked()'),
                            self.onClickedStatsAll)
 
         
-        mainButton2 = QtGui.QComboBox()
-        mainButton2.insertItem (0, self.pomo.getString("guitext",
-                                "optn_lastweek"), None)
-        mainButton2.insertItem (0, self.pomo.getString("guitext",
-                                "optn_lastmonth"), None)
-        mainButton2.insertItem (0, self.pomo.getString("guitext",
-                                "optn_last3months"), None)
-        mainButton2.insertItem (0, self.pomo.getString("guitext",
-                                "optn_last6months"), None)
-        mainButton2.insertItem (0, self.pomo.getString("guitext",
-                                "optn_lastyear"), None)
+        selTimeSpan = QtGui.QComboBox()
+        selTimeSpan.insertItem (0, self.getString("gui", "optn_lastweek"), None)
+        selTimeSpan.insertItem (0, self.getString("gui", "optn_lastmonth"), None)
+        selTimeSpan.insertItem (0, self.getString("gui", "optn_last3months"), None)
+        selTimeSpan.insertItem (0, self.getString("gui", "optn_last6months"), None)
+        selTimeSpan.insertItem (0, self.getString("gui", "optn_lastyear"), None)
         
-        mainButton3 = QtGui.QPushButton(self.pomo.getString("guitext",
-                                        "btn_showdaily"), statsTab)
+        showBtn = QtGui.QPushButton(self.getString("gui", "btn_showdaily"),
+                statsTab)
         
         hbox = QtGui.QHBoxLayout()
         hbox.addStretch()
-        hbox.addWidget(mainButton)
+        hbox.addWidget(allCheck)
         hbox.addStretch()
-        hbox.addWidget(mainButton2)
+        hbox.addWidget(selTimeSpan)
         hbox.addStretch()
-        hbox.addWidget(mainButton3)
+        hbox.addWidget(showBtn)
         hbox.addStretch()
         vbox = QtGui.QVBoxLayout()
         vbox.addWidget(table)
@@ -301,7 +285,7 @@ class PomoWindow(QtGui.QWidget):
         """
         aboutTab = QtGui.QWidget()
         
-        aboutText = QtGui.QLabel(self.pomo.getString("guitext", "about"))
+        aboutText = QtGui.QLabel(self.getString("gui", "about"))
         
         vbox = QtGui.QVBoxLayout()
         hbox = QtGui.QHBoxLayout()
@@ -321,10 +305,11 @@ class PomoWindow(QtGui.QWidget):
 
     def promptUser(self, identifier):
         if identifier == 'ask_paused':
-            reply = QtGui.QMessageBox.question(self, self.pomo.getString(
-            "guitext", "ask_paused_title"), self.pomo.getString("guitext",
-            "ask_paused_text"), QtGui.QMessageBox.Yes | QtGui.QMessageBox.No,
-            QtGui.QMessageBox.No)
+            reply = QtGui.QMessageBox.question(self,
+                        self.getString("gui", "ask_paused_title"),
+                        self.getString("gui", "ask_paused_text"),
+                        QtGui.QMessageBox.Yes | QtGui.QMessageBox.No,
+                        QtGui.QMessageBox.No)
 
             if reply == QtGui.QMessageBox.Yes:
                 return True
@@ -332,9 +317,9 @@ class PomoWindow(QtGui.QWidget):
                 return False
 
         elif identifier == 'warn_notask':
-            QtGui.QMessageBox.warning(self, self.pomo.getString(
-            "guitext", "warn_notask_title"), self.pomo.getString(
-            "guitext", "warn_notask_text"))
+            QtGui.QMessageBox.warning(self,
+                    self.getString("gui", "warn_notask_title"),
+                    self.getString("gui", "warn_notask_text"))
             return
 
         raise KeyError
@@ -361,69 +346,84 @@ class PomoWindow(QtGui.QWidget):
         """
         
         """
-        if self.pomoButtons['main'].text() != 'start':
+        if self.pomoBtns['main'].text() != 'start':
             newVal = int(self.pomoButtonActive.text()) * 60 - val
-            newVal = "{0:0>2}:{1:0>2}".format(math.floor(newVal / 60),
-                                              newVal % 60)
-            self.pomoButtons['main'].setText(newVal)
+            newVal = "{0:0>2}:{1:0>2}".format(math.floor(newVal / 60), newVal % 60)
+            self.pomoBtns['main'].setText(newVal)
             if newVal == '00:00':
                 self.playRingtone()
                 self.pomo.finishTimer(int(self.pomoButtonActive.text()),
-                                      self.pomoTaskEdit.currentText())
+                                      self.pomoTaskBar.currentText())
                 self.resetPomoTab()
             
             
     def resetPomoTab(self):
         """
-        
+        Resets the button states in the pomo tab.
         """
-        if (self.pomoButtonActive != self.pomoButtons['pause'] and
-        self.pomoButtonActive != self.pomoButtons['doublePause']):
-            self.pomoTaskEdit.setDisabled(False)
+        if (self.pomoButtonActive != self.pomoBtns['pause'] and
+                self.pomoButtonActive != self.pomoBtns['longPause']):   
+            self.pomoTaskBar.setDisabled(False)
             
-        self.pomoButtons['main'].setText("start")
-        for k,v in self.pomoButtons.items():
+        self.pomoBtns['main'].setText("start")
+        for k,v in self.pomoBtns.items():
             if k != 'main' and v is not self.pomoButtonActive:
                 v.setDisabled(False)
             
             
     def addTask(self, taskName):
         """
-
+        Adds a task to the taskbar.
         """
-        self.pomoTaskEdit.addItem(taskName, None)
+        self.pomoTaskBar.addItem(taskName, None)
+
+
+    def onClicked(self):
+        """
+        Main function for catching button clicks in the pomo tab.
+        """
+        sender = self.sender()
+        if sender == self.pomoBtns['main']:
+            return self.onClickedPomoMain()
             
-            
+        elif (sender == self.pomoBtns['pause'] or
+              sender == self.pomoBtns['longPause'] or
+              sender == self.pomoBtns['time'] or
+              sender == self.pomoBtns['longTime']):
+            return self.onClickedPomoTime()
+
+        raise ValueError()
+
+    
     def onClickedPomoMain(self):
         """
         Starts/Stops the timer depending on the state of the button.
         """
         sender = self.sender()
-        
-        if sender.text() == 'start':
-            if (self.pomoTaskEdit.currentText() != '' or
-            self.pomoTaskEdit.isEnabled() is False):
-                self.pomoTaskEdit.setDisabled(True)
-                self.pomoTaskEdit.setEditText(
-                    self.pomoTaskEdit.currentText().strip())
-                for k,v in self.pomoButtons.items():
-                    if k != 'main':
-                        v.setDisabled(True)
-                sender.setText("{0:0>2}:00".format(int(
-                    self.pomoButtonActive.text())))
-                self.pomo.startTimer()
-            else:
-                self.promptUser("warn_notask")
-            
-        else:
+
+        if self.pomo.isTimerRunning():
             self.pomo.stopTimer()
-            
+            # Ask the user whether he wants to reset the running timer.
             if self.promptUser("ask_paused"):
                 self.resetPomoTab()
                 self.pomo.resetTimer()
             else:
                 self.pomo.startTimer()
-                
+        else:
+            newText = self.pomoTaskBar.currentText().strip()
+            self.pomoTaskBar.setEditText(newText)
+
+            if (newText != "" or self.pomoTaskBar.isEnabled() is False):
+                self.pomoTaskBar.setDisabled(True)
+                for k,v in self.pomoBtns.items():
+                    if k != 'main':
+                        v.setDisabled(True)
+                sender.setText("{0:0>2}:00".
+                    format(int(self.pomoButtonActive.text())))
+                self.pomo.startTimer()
+            else:
+                self.promptUser("warn_notask")
+        
                 
     def onClickedPomoTime(self):
         """
@@ -431,16 +431,16 @@ class PomoWindow(QtGui.QWidget):
         """
         sender = self.sender()
         
-        if self.pomoButtons['main'].text() == 'start':
+        if self.pomoBtns['main'].text() == 'start':
             self.pomoButtonActive.setDisabled(False)
             sender.setDisabled(True)
             self.pomoButtonActive = sender
             
-            if (sender == self.pomoButtons['pause']
-            or sender == self.pomoButtons['doublePause']):
-                self.pomoTaskEdit.setDisabled(True)
+            if (sender == self.pomoBtns['pause']
+                    or sender == self.pomoBtns['longPause']):
+                self.pomoTaskBar.setDisabled(True)
             else:
-                self.pomoTaskEdit.setDisabled(False)
+                self.pomoTaskBar.setDisabled(False)
         
 
     def onClickedStatsAll(self):
