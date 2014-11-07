@@ -15,7 +15,7 @@ class PomoCore():
         super(PomoCore, self).__init__()
         self.timerActive = False
         self.timerCount = 0
-        self.timerType = "pomo"
+        self.timerType = 25
         self.initStrings()
 
 
@@ -26,6 +26,7 @@ class PomoCore():
         try:
             tree = ET.parse('data/strings.xml')
             self.xmlRoot = tree.getroot()
+            self.stringCache = dict()
         except:
             raise RuntimeError("Could not open strings.xml")
         
@@ -48,10 +49,17 @@ class PomoCore():
         """
         Returns the given string for a category and an identifier.
         """
+        stringName = identifier + "@" + cat
+        if stringName in self.stringCache:
+            return self.stringCache[stringName]
+        
         node = self.xmlRoot.find(cat)
         if node != None:
             for child in node:
                 if child.get('name') == identifier:
+                    # Cache the result since a high number of individual
+                    # requests might be causing a Fatal IO Error.
+                    self.stringCache[stringName] = child.text
                     return child.text
         raise ValueError("Cannot find string: '" + identifier + "'.")
 
@@ -63,12 +71,14 @@ class PomoCore():
         return self.timerActive
 
         
-    def startTimer(self):
+    def startTimer(self, timeSpan):
         """
         Starts the timer in a new thread, calling a tick function after 1sec.
         """
         self.timerActive = True
-        self.timerFix = time.time()+1
+        self.timerCount = timeSpan * 60
+        self.timerType = timeSpan
+        self.timerFix = time.time() + 1
         timer = threading.Timer(self.timerFix - time.time(), self.tickTimer)
         timer.daemon = True
         timer.start()
@@ -101,32 +111,25 @@ class PomoCore():
         Primary timer function. Starts a new thread until the timer finishes.
         """
         if self.timerActive == True:
-            self.timerCount += 1
+            self.timerCount -= 1
             self.timerFix += 1
             self.pomoGUI.receiveTick(self.timerCount)
             timer = threading.Timer(self.timerFix - time.time(), self.tickTimer)
             timer.daemon = True
             timer.start()
 
-
-    def toggleTimerType(self):
-        if self.timerType == "pomo":
-            self.timerType = "pause"
-        else:
-            self.timerType = "pomo"
-
         
-    def finishTimer(self, minutes, task):
+    def finishTimer(self, task):
         """
         Resets the timer and updates the DB/GUI once the timer is finished.
         """
         self.resetTimer()
-        pomos = math.floor(minutes / 25)
+        pomos = math.floor(self.timerType / 25)
         if pomos >= 1 and task != '':
             newTask = self.pomoData.addPomo(task, pomos)
             if newTask == True:
                 self.pomoGUI.addTask(task)
-                # TODO: Update all GUI infos.
+                # TODO: Update all the other statistics.
 
 
     def getAllTasks(self):

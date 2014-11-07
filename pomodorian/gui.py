@@ -342,18 +342,20 @@ class PomoWindow(QtGui.QWidget):
             event.accept()
 
             
-    def receiveTick(self, val):
+    def receiveTick(self, timerCount):
         """
-        
+        Updates the GUI every second when the timer is running.
         """
-        if self.pomoBtns['main'].text() != 'start':
-            newVal = int(self.pomoButtonActive.text()) * 60 - val
-            newVal = "{0:0>2}:{1:0>2}".format(math.floor(newVal / 60), newVal % 60)
-            self.pomoBtns['main'].setText(newVal)
-            if newVal == '00:00':
+        if self.pomo.isTimerRunning():
+            timeStr = "{0:0>2}:{1:0>2}".format(
+                    math.floor(timerCount / 60), timerCount % 60) 
+            self.pomoBtns['main'].setText(timeStr)
+            # Show current time in the title.
+            #title = timeStr + " - " +  self.getString("main", "app_name")
+            #self.window().setWindowTitle(title)
+            if timerCount == 0:
                 self.playRingtone()
-                self.pomo.finishTimer(int(self.pomoButtonActive.text()),
-                                      self.pomoTaskBar.currentText())
+                self.pomo.finishTimer(self.pomoTaskBar.currentText())
                 self.resetPomoTab()
             
             
@@ -369,6 +371,9 @@ class PomoWindow(QtGui.QWidget):
         for k,v in self.pomoBtns.items():
             if k != 'main' and v is not self.pomoButtonActive:
                 v.setDisabled(False)
+
+        # Also reset the window title.
+        #self.window().setWindowTitle(self.getString("main", "app_name"))
             
             
     def addTask(self, taskName):
@@ -418,9 +423,9 @@ class PomoWindow(QtGui.QWidget):
                 for k,v in self.pomoBtns.items():
                     if k != 'main':
                         v.setDisabled(True)
-                sender.setText("{0:0>2}:00".
-                    format(int(self.pomoButtonActive.text())))
-                self.pomo.startTimer()
+                timeSpan = int(self.pomoButtonActive.text())
+                sender.setText("{0:0>2}:00".format(timeSpan))
+                self.pomo.startTimer(timeSpan)
             else:
                 self.promptUser("warn_notask")
         
@@ -461,7 +466,7 @@ class PomoWindow(QtGui.QWidget):
         Creates a thread for playing the ringtone.
         """
         t = threading.Thread(target=self.playRingThread)
-        # Kill the thread when it finishes.
+        # Kill the thread once it finishes.
         t.daemon = True
         t.start()
         
