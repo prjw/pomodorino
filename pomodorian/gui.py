@@ -19,6 +19,7 @@ class PomoWindow(QtGui.QWidget):
         self.pomo = pomo
         self.initUI()
         self.initAudio()
+        self.statsRefresh = False
 
         
     def getString(self, cat, identifier):
@@ -48,7 +49,7 @@ class PomoWindow(QtGui.QWidget):
         tabWidget.addTab(pomoTab, self.getString("gui", "tab_pomo"))
         tabWidget.addTab(statsTab, self.getString("gui", "tab_stats"))
         tabWidget.addTab(aboutTab, self.getString("gui", "tab_about"))
-        
+        tabWidget.currentChanged.connect(self.onChangeTab)
         # Show the window
         self.show()
         
@@ -161,6 +162,7 @@ class PomoWindow(QtGui.QWidget):
 
         for name, button in self.pomoBtns.items():
             button.connect(button, QtCore.SIGNAL('clicked()'), self.onClicked)
+            
     
         firstRow = QtGui.QHBoxLayout()
         firstRow.addWidget(taskBar)
@@ -197,53 +199,8 @@ class PomoWindow(QtGui.QWidget):
         """
         statsTab = QtGui.QWidget()
 
-        tasks = self.pomo.getAllTasks()
+        self.statsTable = self.fillStatsTable()
         
-        table = QtGui.QTableWidget(len(tasks),4)
-        table.setShowGrid(True)
-        
-        for taskID, taskName, pomoCount, pomoLast in tasks:
-            checkBox = QtGui.QCheckBox()
-            checkWidget = QtGui.QWidget()
-            checkLayout = QtGui.QHBoxLayout(checkWidget)
-            checkLayout.addWidget(checkBox)
-            checkLayout.setAlignment(QtCore.Qt.AlignCenter)
-            checkLayout.setContentsMargins(0, 0, 0, 0)
-            checkWidget.setLayout(checkLayout)
-            table.setCellWidget(taskID - 1 , 0, checkWidget)
-            
-            
-            item = QtGui.QTableWidgetItem()
-            item.setText(taskName)
-            item.setFlags(QtCore.Qt.ItemIsEnabled)
-            table.setItem(taskID - 1 , 1, item)
-            
-            item = QtGui.QTableWidgetItem()
-            item.setText(str(pomoCount) + "  (" +
-                         str(round((pomoCount * 25) / 60, 1))+"h)")
-            item.setFlags(QtCore.Qt.ItemIsEnabled)
-            table.setItem(taskID - 1 , 2, item)
-            
-            
-            pomoLastDate = datetime.datetime.fromtimestamp(pomoLast)
-            item = QtGui.QTableWidgetItem()
-            item.setText(pomoLastDate.strftime("%x"))
-            item.setFlags(QtCore.Qt.ItemIsEnabled)
-            table.setItem(taskID - 1 , 3, item)
-        
-        
-        table.setSelectionMode(QtGui.QAbstractItemView.NoSelection)
-        
-        
-        table.setHorizontalHeaderLabels(["",
-                self.getString("gui", "lbl_stats_task"),
-                self.getString("gui", "lbl_stats_pomos"),
-                self.getString("gui", "lbl_stats_last")])
-        table.verticalHeader().setVisible(False)
-        table.resizeColumnsToContents()
-        table.setColumnWidth(1, 278)
-        
-        self.statsTable = table
         
         allCheck = QtGui.QCheckBox(self.getString("gui", "lbl_stats_all"),
                 statsTab)
@@ -270,12 +227,12 @@ class PomoWindow(QtGui.QWidget):
         hbox.addStretch()
         hbox.addWidget(showBtn)
         hbox.addStretch()
-        vbox = QtGui.QVBoxLayout()
-        vbox.addWidget(table)
-        vbox.addLayout(hbox)
+        self.statsVBox = QtGui.QVBoxLayout()
+        self.statsVBox.addWidget(self.statsTable)
+        self.statsVBox.addLayout(hbox)
         
         
-        statsTab.setLayout(vbox)
+        statsTab.setLayout(self.statsVBox)
         return statsTab 
 
         
@@ -304,6 +261,9 @@ class PomoWindow(QtGui.QWidget):
 
 
     def promptUser(self, identifier):
+        """
+        Creates predefined confirmation/warning dialogs.
+        """
         if identifier == 'ask_paused':
             reply = QtGui.QMessageBox.question(self,
                         self.getString("gui", "ask_paused_title"),
@@ -323,7 +283,71 @@ class PomoWindow(QtGui.QWidget):
             return
 
         raise KeyError
+
+
+    def updateStatsTab(self):
+        """
+        Updates the pomodoro statistics.
+        """
+        if self.statsRefresh is True:
+            self.statsVBox.removeWidget(self.statsTable)
+            self.statsTable = self.fillStatsTable()
+            self.statsVBox.insertWidget(0, self.statsTable)
+            self.statsRefresh = False
         
+
+    def fillStatsTable(self):
+        tasks = self.pomo.getAllTasks()
+        
+        table = QtGui.QTableWidget(len(tasks),4)
+        table.setShowGrid(True)
+
+        # There must be a row counter since the taskID can be different.
+        rowCount = 0
+        
+        for taskID, taskName, pomoCount, pomoLast in tasks:
+            checkBox = QtGui.QCheckBox()
+            checkWidget = QtGui.QWidget()
+            checkLayout = QtGui.QHBoxLayout(checkWidget)
+            checkLayout.addWidget(checkBox)
+            checkLayout.setAlignment(QtCore.Qt.AlignCenter)
+            checkLayout.setContentsMargins(0, 0, 0, 0)
+            checkWidget.setLayout(checkLayout)
+            table.setCellWidget(rowCount, 0, checkWidget)
+            
+            
+            item = QtGui.QTableWidgetItem()
+            item.setText(taskName)
+            item.setFlags(QtCore.Qt.ItemIsEnabled)
+            table.setItem(rowCount, 1, item)
+            
+            item = QtGui.QTableWidgetItem()
+            item.setText(str(pomoCount) + "  (" +
+                         str(round((pomoCount * 25) / 60, 1))+"h)")
+            item.setFlags(QtCore.Qt.ItemIsEnabled)
+            table.setItem(rowCount, 2, item)
+            
+            
+            pomoLastDate = datetime.datetime.fromtimestamp(pomoLast)
+            item = QtGui.QTableWidgetItem()
+            item.setText(pomoLastDate.strftime("%x"))
+            item.setFlags(QtCore.Qt.ItemIsEnabled)
+            table.setItem(rowCount, 3, item)
+
+            rowCount += 1
+        
+        table.setSelectionMode(QtGui.QAbstractItemView.NoSelection)
+        
+        
+        table.setHorizontalHeaderLabels(["",
+                self.getString("gui", "lbl_stats_task"),
+                self.getString("gui", "lbl_stats_pomos"),
+                self.getString("gui", "lbl_stats_last")])
+        table.verticalHeader().setVisible(False)
+        table.resizeColumnsToContents()
+        table.setColumnWidth(1, 278)
+
+        return table
 
         
     def closeEvent(self, event):
@@ -381,6 +405,15 @@ class PomoWindow(QtGui.QWidget):
         Adds a task to the taskbar.
         """
         self.pomoTaskBar.addItem(taskName, None)
+
+
+    def onChangeTab(self, index=-1):
+        """
+        Function handler for whenever a tab is changed.
+        """
+        # When the user clicks the stats tab, it will be updated.
+        if index == 1:
+            self.updateStatsTab()
 
 
     def onClicked(self):
@@ -477,6 +510,14 @@ class PomoWindow(QtGui.QWidget):
         """
         for data in self.audioData:
             self.audioDevice.write(data)
+
+
+    def doStatsRefresh(self):
+        """
+        Forces a stats tab refresh once the user clicks on it the next time.
+        Cannot do a real refresh here because of threading issues.
+        """
+        self.statsRefresh = True
 
 
 def initGUI(pomo):

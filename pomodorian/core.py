@@ -89,21 +89,14 @@ class PomoCore():
         """
         Stops the running timer.
         """
-        if self.timerActive == True:
-            self.timerActive = False
-        else:
-            raise Warning("Trying to stop an offline timer.")
+        self.timerActive = False
         
         
     def resetTimer(self):
         """
         Stops the timer and resets the count.
         """
-        try:
-            self.stopTimer()
-        except Warning:
-            pass
-        
+        self.stopTimer()
         self.timerCount = 0
         
         
@@ -125,12 +118,14 @@ class PomoCore():
         Resets the timer and updates the DB/GUI once the timer is finished.
         """
         self.resetTimer()
-        pomos = math.floor(self.timerType / 25)
+        # Define the regular length of a pomodoro. Mainly for debugging reasons
+        POMO_CONST = 25
+        pomos = math.floor(self.timerType / POMO_CONST)
         if pomos >= 1 and task != '':
             newTask = self.pomoData.addPomo(task, pomos)
             if newTask == True:
                 self.pomoGUI.addTask(task)
-                # TODO: Update all the other statistics.
+                self.pomoGUI.doStatsRefresh()
 
 
     def getAllTasks(self):

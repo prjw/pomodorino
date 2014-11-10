@@ -76,7 +76,6 @@ class PomoData():
                 data = pomoData[counter]
                 pomoCount = data[1]
                 pomoLast = data[2]
-                
                 self.tasks.append([taskID, taskName, pomoCount, pomoLast])
                 counter += 1
         else:
@@ -95,14 +94,26 @@ class PomoData():
                 # taskName was not found, insert new task.
                 taskID = self.insertTask(taskName)
                 newTask = True
+
+            pomoTime = 0
                 
             for i in range(0, pomos):
+                pomoTime = int(time.time()) - ((i+1) * 25 * 60)
                 statement = ("INSERT INTO Pomos(Timestamp, TaskID) VALUES(" 
-                            + str(int(time.time()) - ((i+1) * 25 * 60)) 
-                            + "," + str(taskID) + ")")
+                            + str(pomoTime) + "," + str(taskID) + ")")
                 self.c.execute(statement)
-                # Timestamp indicates beginning of a pomo
-                
+                # Timestamp indicates the beginning of a pomo
+
+
+            # We need to update our local cache as well.
+            tasks = list()
+            for tID, tskName, pomoCount, pomoLast in self.tasks:
+                if tskName == taskName:
+                    pomoCount += pomos
+                    pomoLast = pomoTime
+                tasks.append([tID, tskName, pomoCount, pomoLast])
+            self.tasks = tasks
+            
             self.conn.commit()
             return newTask
             
@@ -120,7 +131,7 @@ class PomoData():
                 return taskID
                 
         raise KeyError     
-        
+           
         
     def getTasks(self):
         """
