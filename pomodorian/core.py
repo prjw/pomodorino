@@ -125,7 +125,7 @@ class PomoCore():
             newTask = self.pomoData.addPomo(task, pomos)
             if newTask == True:
                 self.pomoGUI.addTask(task)
-                self.pomoGUI.doStatsRefresh()
+            self.pomoGUI.doStatsRefresh()
 
 
     def getAllTasks(self):
