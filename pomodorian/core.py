@@ -71,13 +71,14 @@ class PomoCore():
         return self.timerActive
 
         
-    def startTimer(self, timeSpan):
+    def startTimer(self, timeSpan, restart=False):
         """
         Starts the timer in a new thread, calling a tick function after 1sec.
         """
         self.timerActive = True
-        self.timerCount = timeSpan * 60
-        self.timerType = timeSpan
+        if restart is False and timeSpan != 0:
+            self.timerCount = timeSpan * 60
+            self.timerType = timeSpan
         self.timerFix = time.time() + 1
         timer = threading.Timer(self.timerFix - time.time(), self.tickTimer)
         timer.daemon = True

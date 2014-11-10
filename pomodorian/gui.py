@@ -337,7 +337,7 @@ class PomoWindow(QtGui.QWidget):
                 event.accept()
             else:
                 event.ignore()
-                self.pomo.startTimer()
+                self.pomo.startTimer(0, restart=True)
         else:
             event.accept()
 
@@ -413,7 +413,7 @@ class PomoWindow(QtGui.QWidget):
                 self.resetPomoTab()
                 self.pomo.resetTimer()
             else:
-                self.pomo.startTimer()
+                self.pomo.startTimer(0, restart=True)
         else:
             newText = self.pomoTaskBar.currentText().strip()
             self.pomoTaskBar.setEditText(newText)
