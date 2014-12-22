@@ -3,42 +3,25 @@ import shutil
 
 from setuptools import setup, find_packages
 
-DEV = True
-
-setup(name='pomodorian',
-      version='0.1',
+setup(name='pomodorino',
+      version='0.2',
       description='A simple pomodoro application written in Python',
       author='prjw',
       author_email='prjw@posteo.de',
-      url='http://www.github.com/prjw/pomodorian',
+      url='http://www.github.com/prjw/pomodorino',
       license='GPL',
-      packages=['pomodorian'],
+      packages=['pomodorino'],
       scripts=["pomo"]
      )
      
      
-print("Install icon and desktop entries? [y/n]: ")
-choice = input();
-while choice != 'y' and choice != 'n':
-    print("Install icon and desktop entries? [y/n]: ")
-    choice = input();
-
-    
-if choice == 'y':
-    shutil.copyfile("data/pomodorian.desktop", "/usr/share/applications/pomodorian.desktop")     
-    shutil.copyfile("data/pomodorian.png", "/usr/share/icons/pomodorian.png")     
-    os.makedirs("/usr/share/sounds/pomodorian", exist_ok=True)
-    
+shutil.copyfile("data/pomodorino.desktop", "/usr/share/applications/pomodorino.desktop")     
+shutil.copyfile("data/pomodorino.png", "/usr/share/icons/pomodorino.png")
+os.makedirs("/usr/share/pomodorino", exist_ok=True)
+shutil.copyfile("data/ring.wav", "/usr/share/pomodorino/ring.wav")
+shutil.copyfile("data/strings.xml", "/usr/share/pomodorino/strings.xml") 
      
-if DEV == True:
-    print("Cleanup this directory? [y/n]: ")
-    choice = input();
-    while choice != 'y' and choice != 'n':
-        print("Cleanup this directory? [y/n]: ")
-        choice = input();
-        
-    if choice == 'y':
-        shutil.rmtree('dist/', True)
-        shutil.rmtree('pomodorian.egg-info/', True)
-        shutil.rmtree('build/', True)
-        shutil.rmtree('pomodorian/__pycache__/', True)
+shutil.rmtree('dist/', True)
+shutil.rmtree('pomodorino.egg-info/', True)
+shutil.rmtree('build/', True)
+shutil.rmtree('pomodorino/__pycache__/', True)

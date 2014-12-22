@@ -1,12 +1,12 @@
-pomodorian
+pomodorino
 ==========
 
 A simple pomodoro application for time-tracking purposes.
 
 Licensed under the GNU GPL v2.
 
-![pomodorian main window screenshot](https://i.imgur.com/jjX8PLo.png)
-![pomodorian activity tab screenshot](https://i.imgur.com/WzXvFMP.png)
+![pomodorino main window screenshot](https://i.imgur.com/jjX8PLo.png)
+![pomodorino activity tab screenshot](https://i.imgur.com/WzXvFMP.png)
 
 ## Requirements
 * Linux

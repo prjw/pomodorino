@@ -2,8 +2,8 @@
 
 <resources>
     <main>
-        <string name="app_name">pomodorian</string>
-        <string name="app_version">0.1</string>
+        <string name="app_name">pomodorino</string>
+        <string name="app_version">0.2</string>
     </main>
     <gui>
         <string name="tab_pomo">pomo</string>
