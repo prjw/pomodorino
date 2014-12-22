@@ -7,9 +7,10 @@
     </main>
     <gui>
         <string name="tab_pomo">pomo</string>
-        <string name="tab_stats">stats</string>
-        <string name="tab_about">about</string>
-        <string name="input_task">task / activity / project</string>
+        <string name="tab_tasks">tasks</string>
+        <string name="tab_activity">activity</string>
+        <string name="tab_stats">statistics</string>
+        <string name="input_task">task description</string>
         <string name="btn_start">start</string>
         <string name="lbl_shortpause">5</string>
         <string name="ttp_shortpause">Short pause (5min)</string>
@@ -22,21 +23,11 @@
         <string name="lbl_stats_task">task</string>
         <string name="lbl_stats_pomos">pomos</string>
         <string name="lbl_stats_last">last</string>
-        <string name="lbl_stats_all">all tasks</string>
-        <string name="optn_lastweek">Last week</string>
-        <string name="optn_lastmonth">Last month</string>
-        <string name="optn_last3months">Last 3 months</string>
-        <string name="optn_last6months">Last 6 months</string>
-        <string name="optn_lastyear">Last year</string>
+        <string name="lbl_stats_all">--- All tasks ---</string>
         <string name="btn_showdaily">Show daily statistics</string>
         <string name="ask_paused_title">Timer paused</string>
         <string name="ask_paused_text">Do you really want to reset the running timer?</string>
         <string name="warn_notask_title">Error: No task specified</string>
         <string name="warn_notask_text">You have to choose a task, activity or project</string>
-
-        
-        <string name="about">pomodorian is a simple pomodoro application
-written in Python3 using PyQT4 and SQLite3.
-Licensed under the GNU GPL.</string>
     </gui>
 </resources>

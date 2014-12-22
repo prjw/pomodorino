@@ -30,20 +30,6 @@ class PomoCore():
         except:
             raise RuntimeError("Could not open strings.xml")
         
-        
-    def setGUI(self, pomoGUI):
-        """
-        Connects the gui class with the core.
-        """
-        self.pomoGUI = pomoGUI
-        
-        
-    def setData(self, pomoData):
-        """
-        Connects the data class with the core.
-        """
-        self.pomoData = pomoData
-        
 
     def getString(self, cat, identifier):
         """
@@ -62,13 +48,6 @@ class PomoCore():
                     self.stringCache[stringName] = child.text
                     return child.text
         raise ValueError("Cannot find string: '" + identifier + "'.")
-
-        
-    def isTimerRunning(self):
-        """
-        Returns the boolean status of the timer activity.
-        """
-        return self.timerActive
 
         
     def startTimer(self, timeSpan, restart=False):
@@ -125,14 +104,7 @@ class PomoCore():
             newTask = self.pomoData.addPomo(task, pomos)
             if newTask == True:
                 self.pomoGUI.addTask(task)
-            self.pomoGUI.doStatsRefresh()
-
-
-    def getAllTasks(self):
-        """
-        Returns an array with all the tasks.
-        """
-        return self.pomoData.getTasks()
+            self.pomoGUI.doTasksRefresh()
 
 
 def run():

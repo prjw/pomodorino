@@ -130,14 +130,29 @@ class PomoData():
             if taskName == name:
                 return taskID
                 
-        raise KeyError     
-           
-        
-    def getTasks(self):
+        raise KeyError
+
+
+    def getPomoCount(self, timeInt, taskID):
         """
-        Returns the cached list of tasks.
+        Returns the number of pomos [of a task] done in a certain time interval.
         """
-        return self.tasks
+        if self.connected is True:
+
+            statement = "SELECT count(TaskID) FROM Pomos WHERE "
+
+            if taskID > 0:
+                statement += "TaskID = '" + str(taskID) + "' AND "
+
+            statement += ("Timestamp BETWEEN " + str(timeInt[0]) +" AND " +
+                str(timeInt[1]))
+
+            self.c.execute(statement)
+                           
+            val = self.c.fetchall()
+            return val[0][0]
+        else:
+            raise RuntimeError("No DB connection available.")
         
         
     def insertTask(self, taskName):
@@ -164,9 +179,8 @@ class PomoData():
         else:
             raise RuntimeError("No DB connection available.")
         
-    
 
 
 def initData(pomo):
     pomoData = PomoData(pomo)
-    pomo.setData(pomoData)
+    pomo.pomoData = pomoData
