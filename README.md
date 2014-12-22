@@ -6,7 +6,7 @@ A simple pomodoro application for time-tracking purposes.
 Licensed under the GNU GPL v2.
 
 ![pomodorian main window screenshot](https://i.imgur.com/jjX8PLo.png)
-![pomodorian activity tab screenshot](https://i.imgur.com/trcz0zh.png)
+![pomodorian activity tab screenshot](https://i.imgur.com/WzXvFMP.png)
 
 ## Requirements
 * Linux
