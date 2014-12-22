@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Pomodorino
+Comment=A simple pomodoro application for time-tracking purposes.
+Exec=pomo
+Icon=pomodorino
+Terminal=false
+Type=Application
