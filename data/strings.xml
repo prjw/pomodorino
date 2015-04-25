@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <resources>
-    <main>
+    <strings>
         <string name="app_name">pomodorino</string>
-        <string name="app_version">0.2</string>
-    </main>
-    <gui>
+        <string name="app_version">0.3</string>
         <string name="tab_pomo">pomo</string>
         <string name="tab_tasks">tasks</string>
         <string name="tab_activity">activity</string>
@@ -24,10 +22,14 @@
         <string name="lbl_stats_pomos">pomos</string>
         <string name="lbl_stats_last">last</string>
         <string name="lbl_stats_all">--- All tasks ---</string>
+        <string name="lbl_rename_task">Renaming task</string>
+        <string name="lbl_rename_taken">Name already taken. Try again!</string>
         <string name="btn_showdaily">Show daily statistics</string>
         <string name="ask_paused_title">Timer paused</string>
         <string name="ask_paused_text">Do you really want to reset the running timer?</string>
+        <string name="ask_taskdel_title">Deleting a task</string>
+        <string name="ask_taskdel_text">Do you really want to delete '%taskname%'?</string>
         <string name="warn_notask_title">Error: No task specified</string>
         <string name="warn_notask_text">You have to choose a task, activity or project</string>
-    </gui>
+    </strings>
 </resources>
