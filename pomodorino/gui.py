@@ -172,7 +172,7 @@ class PomoWindow(QtGui.QWidget):
         if pomos >= 1 and task != '':
             newTask = self.pomo.pomoData.addPomo(task, pomos)
             if newTask == True:
-                self.addTask(task)
+                self.pomoTaskBar.addItem(taskName, None)
             self.fillActivityTab()
             self.updateTasksTab()
 
@@ -201,7 +201,6 @@ class PomoWindow(QtGui.QWidget):
         """
         pomoTab = QtGui.QWidget()
 
-
         # Create a combobox with a lineedit for task selection.
         taskBar = QtGui.QComboBox()
         taskBar.setEditable(True)
@@ -214,25 +213,21 @@ class PomoWindow(QtGui.QWidget):
         taskBar.addItem("", None)
         self.pomoTaskBar = taskBar
 
-
         # Add all the task names.
         tasks = self.pomo.pomoData.tasks
         for taskID, taskName, pomoCount, pomoLast in tasks:
             taskBar.addItem(taskName, None)
         
-
         # Create the main button.
         mainBtn = QtGui.QPushButton(self.getString("btn_start"), pomoTab)
         mainBtn.setFixedSize(180, 60)
         mainBtn.setStyleSheet('font-size: 17pt;')
-
 
         # Create the 25 min button.
         timeBtn = QtGui.QPushButton(self.getString("lbl_regularpomo"), pomoTab)
         timeBtn.setToolTip(self.getString("ttp_regularpomo"))
         timeBtn.setFixedSize(50, 25)
         timeBtn.setStyleSheet('font-size: 9pt;')
-
         
         # Create the 50 min button.
         longTimeBtn = QtGui.QPushButton(self.getString("lbl_longpomo"), pomoTab)
@@ -240,25 +235,21 @@ class PomoWindow(QtGui.QWidget):
         longTimeBtn.setFixedSize(50, 25)
         longTimeBtn.setStyleSheet('font-size: 9pt;')
 
-
         # Create the 5 min button.
         pauseBtn = QtGui.QPushButton(self.getString("lbl_shortpause"), pomoTab)
         pauseBtn.setToolTip(self.getString("ttp_shortpause"))
         pauseBtn.setFixedSize(50, 25)
         pauseBtn.setStyleSheet('font-size: 9pt;')
-        
 
         # Create the 10 min button.
         longPauseBtn = QtGui.QPushButton(self.getString("lbl_longpause"), pomoTab)
         longPauseBtn.setToolTip(self.getString("ttp_longpause"))
         longPauseBtn.setFixedSize(50, 25)
         longPauseBtn.setStyleSheet('font-size: 9pt;')
-
         
         # Select 25 min button as default on startup.
         timeBtn.setDisabled(True)
         self.pomoButtonActive = timeBtn
-
 
         # Save button references for later usage.
         self.pomoBtns = dict()
@@ -268,11 +259,9 @@ class PomoWindow(QtGui.QWidget):
         self.pomoBtns['pause'] = pauseBtn
         self.pomoBtns['longPause'] = longPauseBtn
 
-
         # Connect the buttons to the handler function.
         for name, button in self.pomoBtns.items():
             button.clicked.connect(self.onClicked)
-            
 
         # Create and set the layout.
         firstRow = QtGui.QHBoxLayout()
@@ -384,14 +373,7 @@ class PomoWindow(QtGui.QWidget):
 
         # Also reset the window title.
         self.setTitle(None)
-
-            
-    def addTask(self, taskName):
-        """
-        Adds a task to the taskbar.
-        """
-        self.pomoTaskBar.addItem(taskName, None)
-
+                
             
     def tick(self):
         """
@@ -441,9 +423,9 @@ class PomoWindow(QtGui.QWidget):
         tasksTab = QtGui.QWidget()
 
         self.tasksTable = self.fillTasksTable()
-        
         self.tasksVBox = QtGui.QVBoxLayout()
         self.tasksVBox.addWidget(self.tasksTable)
+        self.tasksTable.sortItems(0)
         
         tasksTab.setLayout(self.tasksVBox)
         return tasksTab
@@ -466,10 +448,8 @@ class PomoWindow(QtGui.QWidget):
         table.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
         table.setFocusPolicy(QtCore.Qt.NoFocus)
         table.setHorizontalHeaderLabels([self.getString("lbl_stats_task"), self.getString("lbl_stats_pomos"), self.getString("lbl_stats_last")])
-
         table.verticalHeader().setVisible(False)
         table.horizontalHeader().setHighlightSections(False)
-
         
         # Create a context menu for the table.
         def ctMenuEvent(event):
@@ -483,7 +463,6 @@ class PomoWindow(QtGui.QWidget):
                     dlAct.setEnabled(False)
 
         table.contextMenuEvent = ctMenuEvent
-        
 
         # Columwidth depends on the existence of a scrollbar.
         if len(tasks) <= 7:
@@ -493,10 +472,8 @@ class PomoWindow(QtGui.QWidget):
         table.setColumnWidth(1, 48)
         table.setColumnWidth(2, 60)
 
-
         # There must be a row counter since the taskID can be different.
         rowCount = 0
-
 
         # Fill the table rows.
         for taskID, taskName, pomoCount, pomoLast in tasks:
@@ -507,14 +484,12 @@ class PomoWindow(QtGui.QWidget):
             
             table.setItem(rowCount, 0, item)
 
-
             # Second column: pomoCount
             item = QtGui.QTableWidgetItem()
             item.setText(str(pomoCount))
             item.setFlags(QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable)
             item.setToolTip("~" + str(round((pomoCount * 25) / 60, 1)) + "h")
             table.setItem(rowCount, 1, item)
-
             
             # Third column: pomoLast
             pomoLastDate = datetime.datetime.fromtimestamp(pomoLast)
@@ -524,8 +499,6 @@ class PomoWindow(QtGui.QWidget):
             table.setItem(rowCount, 2, item)
 
             rowCount += 1
-
-        
         return table
 
 
@@ -549,13 +522,12 @@ class PomoWindow(QtGui.QWidget):
 
     def taskListClick(self, item):
         """
-        Detects when an item in the task table was clicked and clears selection
-        if necessary.
+        Detects when an item in the task table was clicked and clears selection if necessary.
         """
         if self.taskTableSelChange == False:
             self.tasksTable.clearSelection()
         self.taskTableSelChange = False
-
+        
 
     def deleteTask(self):
         """
@@ -737,7 +709,6 @@ class PomoWindow(QtGui.QWidget):
         # Now construct shiftable intervals.
         beginInt = datetime.datetime
         endInt = datetime.datetime
-
 
         # Default scale (days): Begin interval at midnight of today.
         beginInt = datetime.datetime(today.year, today.month, today.day, 0, 0, 0)

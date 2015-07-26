@@ -59,7 +59,7 @@ class PomoData():
         Reads the entire DB.
         """
         if self.connected is True:
-            self.c.execute("SELECT * FROM Tasks ORDER BY ID ASC")
+            self.c.execute("SELECT * FROM Tasks ORDER BY Name COLLATE NOCASE ASC")
             tasks = self.c.fetchall()
             
             self.c.execute("SELECT TaskID, count(TaskID), MAX(Timestamp) FROM Pomos GROUP BY TaskID ORDER BY TaskID ASC")
