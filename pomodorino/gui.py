@@ -17,7 +17,6 @@ import alsaaudio
 
 
 class PomoWindow(QtGui.QWidget):
-    
     def __init__(self, pomo):
         """
         Makes necessary variable initializations and calls other init methods.
@@ -31,7 +30,6 @@ class PomoWindow(QtGui.QWidget):
         self.timerActive = False
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self.tick)
-       
 
     def initUI(self):      
         """
@@ -45,7 +43,6 @@ class PomoWindow(QtGui.QWidget):
         self.trayIcon = QtGui.QSystemTrayIcon(QtGui.QIcon('/usr/share/icons/pomodorino.png'), self)
         self.trayIcon.setVisible(True)
         self.trayIcon.activated.connect(self.trayClick)
-
 
         # Add a minimal context menu for the tray icon.
         #trayMenu = QtGui.QMenu(self)
@@ -66,7 +63,6 @@ class PomoWindow(QtGui.QWidget):
 
         self.show()
         
-        
     def initAudio(self):
         """
         Detects an ALSA audio device and buffers our ringtone.
@@ -74,14 +70,12 @@ class PomoWindow(QtGui.QWidget):
         # Detect an ALSA audio device
         self.audioDevice = alsaaudio.PCM()
 
-
         # Open the ringtone and set some audio settings.
         ring = wave.open("/usr/share/pomodorino/ring.wav", 'rb')
         self.audioDevice.setchannels(ring.getnchannels())
         self.audioDevice.setrate(ring.getframerate())
         self.audioDevice.setformat(alsaaudio.PCM_FORMAT_S16_LE)
         self.audioDevice.setperiodsize(320)
-
         
         # Read the audio data of the ringtone.
         self.audioData = list()
@@ -89,7 +83,6 @@ class PomoWindow(QtGui.QWidget):
         while buf:
             self.audioData.append(buf)
             buf = ring.readframes(320)
-
 
     def closeEvent(self, event):
         """
@@ -106,7 +99,6 @@ class PomoWindow(QtGui.QWidget):
         else:
             event.accept()
 
-
     def changeEvent(self, event):
         """
         Catches the minimizing event and restores the window state.
@@ -119,7 +111,6 @@ class PomoWindow(QtGui.QWidget):
                     self.setWindowState(self.windowState() & ~QtCore.Qt.WindowMinimized)
                     self.setVisible(False)
         event.accept()
-        
 
     def setTitle(self, title):
         """
@@ -132,7 +123,6 @@ class PomoWindow(QtGui.QWidget):
 
         self.window().setWindowTitle(title)
 
-
     def startTimer(self, timeSpan, restart=False):
         """
         Starts the timer.
@@ -143,7 +133,6 @@ class PomoWindow(QtGui.QWidget):
         self.timerActive = True
         self.timer.start(1000)
 
-
     def stopTimer(self):
         """
         Stops the timer.
@@ -151,14 +140,12 @@ class PomoWindow(QtGui.QWidget):
         self.timerActive = False
         self.timer.stop()
 
-
     def resetTimer(self):
         """
         Resets the timer.
         """
         self.stopTimer()
         self.timerCount = 0
-        
 
     def finishTimer(self, task):
         """
@@ -176,7 +163,6 @@ class PomoWindow(QtGui.QWidget):
             self.fillActivityTab()
             self.updateTasksTab()
 
-
     def trayClick(self, reason):
         """
         Is called when the user clicks on the tray icon.
@@ -186,14 +172,10 @@ class PomoWindow(QtGui.QWidget):
                 self.setVisible(False)
             else:
                 self.setVisible(True)
-                
-            
-
 
     ##############
     ## Pomo Tab ##
     ##############
-
         
     def initPomoTab(self):
         """
@@ -292,7 +274,6 @@ class PomoWindow(QtGui.QWidget):
         
         return pomoTab
 
-
     def onClicked(self):
         """
         Main function for catching button clicks in the pomo tab.
@@ -308,7 +289,6 @@ class PomoWindow(QtGui.QWidget):
             return self.onClickedPomoTime()
 
         raise ValueError()
-
     
     def onClickedPomoMain(self):
         """
@@ -341,7 +321,6 @@ class PomoWindow(QtGui.QWidget):
             else:
                 self.promptUser("warn_notask")
         
-                
     def onClickedPomoTime(self):
         """
         Toggles the state of the timer buttons in the pomo tab.
@@ -358,7 +337,6 @@ class PomoWindow(QtGui.QWidget):
             else:
                 self.pomoTaskBar.setDisabled(False)
 
-
     def resetPomoTab(self):
         """
         Resets the button states in the pomo tab.
@@ -373,7 +351,6 @@ class PomoWindow(QtGui.QWidget):
 
         # Also reset the window title.
         self.setTitle(None)
-                
             
     def tick(self):
         """
@@ -392,7 +369,6 @@ class PomoWindow(QtGui.QWidget):
             self.finishTimer(self.pomoTaskBar.currentText())
             self.resetPomoTab()
 
-
     def playRingtone(self):
         """
         Creates a thread for playing the ringtone.
@@ -401,7 +377,6 @@ class PomoWindow(QtGui.QWidget):
         # Kill the thread once it finishes.
         t.daemon = True
         t.start()
-        
 
     def playRingThread(self):
         """
@@ -409,13 +384,11 @@ class PomoWindow(QtGui.QWidget):
         """
         for data in self.audioData:
             self.audioDevice.write(data)
-    
-    
+            
     ###############
     ## tasks tab ##
     ###############
     
-        
     def initTasksTab(self):
         """
         Creates the layout of the tasks tab.
@@ -430,13 +403,11 @@ class PomoWindow(QtGui.QWidget):
         tasksTab.setLayout(self.tasksVBox)
         return tasksTab
 
-
     def fillTasksTable(self):
         """
         Fills the table in the tasks tab.
         """
         tasks = self.pomo.pomoData.tasks
-
         self.taskTableSelChange = False
 
         # Create a table with three columns.
@@ -463,7 +434,7 @@ class PomoWindow(QtGui.QWidget):
                     dlAct.setEnabled(False)
 
         table.contextMenuEvent = ctMenuEvent
-
+        
         # Columwidth depends on the existence of a scrollbar.
         if len(tasks) <= 7:
             table.setColumnWidth(0, 345)
@@ -471,7 +442,7 @@ class PomoWindow(QtGui.QWidget):
             table.setColumnWidth(0, 329)
         table.setColumnWidth(1, 48)
         table.setColumnWidth(2, 60)
-
+        
         # There must be a row counter since the taskID can be different.
         rowCount = 0
 
@@ -481,7 +452,6 @@ class PomoWindow(QtGui.QWidget):
             item = QtGui.QTableWidgetItem()
             item.setText(taskName)
             item.setFlags(QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable)
-            
             table.setItem(rowCount, 0, item)
 
             # Second column: pomoCount
@@ -501,7 +471,6 @@ class PomoWindow(QtGui.QWidget):
             rowCount += 1
         return table
 
-
     def updateTasksTab(self):
         """
         Updates the pomodoro statistics in the tasks tab.
@@ -511,14 +480,12 @@ class PomoWindow(QtGui.QWidget):
         self.tasksTable = self.fillTasksTable()
         self.tasksVBox.insertWidget(0, self.tasksTable)
 
-
     def taskListSelectionChanged(self):
         """
         Sets a flag when the selection in the task table was changed.
         """
         if self.tasksTable.selectedItems() != []:
             self.taskTableSelChange = True
-
 
     def taskListClick(self, item):
         """
@@ -528,7 +495,6 @@ class PomoWindow(QtGui.QWidget):
             self.tasksTable.clearSelection()
         self.taskTableSelChange = False
         
-
     def deleteTask(self):
         """
         Deletes a task by the users request.
@@ -553,7 +519,6 @@ class PomoWindow(QtGui.QWidget):
             taskID = self.pomo.pomoData.getTaskID(taskName)
             self.pomo.pomoData.delTask(taskID)
 
-
     def renameTask(self, warn=""):
         """
         Renames a task by the users request.
@@ -577,8 +542,6 @@ class PomoWindow(QtGui.QWidget):
                 # Update entry in db and cache
                 tID = self.pomo.pomoData.getTaskID(oldname)
                 self.pomo.pomoData.renameTask(tID, name)
-    
-
 
     ##################
     ## activity tab ##
@@ -613,7 +576,6 @@ class PomoWindow(QtGui.QWidget):
         selTask.currentIndexChanged['QString'].connect(self.onChangeTask)
         # Save handle for later use.
         self.activitySelTask = selTask
-
 
         # Navigation buttons to change the active timespan.
         farLeftButton = QtGui.QPushButton("<<", activityTab)
@@ -695,7 +657,6 @@ class PomoWindow(QtGui.QWidget):
         activityTab.setLayout(layout) 
         return activityTab
 
-
     def fillActivityTab(self):
         """
         Fills and displays the bar graph in the activity tab.
@@ -719,12 +680,10 @@ class PomoWindow(QtGui.QWidget):
             weekDayNum = calendar.weekday(today.year, today.month, today.day)
             beginInt = beginInt - delta * weekDayNum
             shiftDelta = 7 * delta
-
         elif self.intervalScale == 1:   # Scale: Months
             # Begin interval at midnight of the first day of the month.
             beginInt = datetime.datetime(today.year, today.month, 1, 0, 0, 0)
             shiftDelta = 30 * delta
-
         self.shiftDelta = shiftDelta
         
         # Get the data of the last units since today.
@@ -736,7 +695,6 @@ class PomoWindow(QtGui.QWidget):
             # Shift
             offset = (size-i-1-self.intervalShift)
             shiftedBegin = beginInt - offset * shiftDelta
-
             # When scaled to months, an arithmetical shift is not practical.
             if self.intervalScale == 1:
                 yearDiff, monDiff = divmod(offset, 12)
@@ -750,7 +708,6 @@ class PomoWindow(QtGui.QWidget):
                     yearDiff += 1
                 
                 shiftedBegin = datetime.datetime(beginInt.year - yearDiff, newMon, 1, 0, 0, 0)
-
             shiftedEnd = datetime.datetime
 
             if self.intervalScale == 3:
@@ -764,7 +721,6 @@ class PomoWindow(QtGui.QWidget):
                 units.append(shiftedBegin.strftime("%b %y"))
                 lastDay = calendar.monthrange(shiftedBegin.year, shiftedBegin.month)[1]
                 shiftedEnd = datetime.datetime(shiftedBegin.year, shiftedBegin.month, lastDay, 23, 59, 59)
-            
             timeInt = [int(shiftedBegin.timestamp()), int(shiftedEnd.timestamp())]
             values.append(self.pomo.pomoData.getPomoCount(timeInt, taskID))
 
@@ -831,7 +787,6 @@ class PomoWindow(QtGui.QWidget):
         # Show.
         self.canvas.draw()
 
-
     def timeNavigate(self):
         """
         Handling function for the navigation buttons in the activity tab.
@@ -842,7 +797,6 @@ class PomoWindow(QtGui.QWidget):
             self.intervalShift -= 6
             self.rightButtonHandle.setDisabled(False)
             self.farRightButtonHandle.setDisabled(False)
-            
         elif sender.text() == '>':
             self.intervalShift += 6
             self.leftButtonHandle.setDisabled(False)
@@ -861,7 +815,6 @@ class PomoWindow(QtGui.QWidget):
             while date.timestamp() >= self.pomo.pomoData.firstPomo:
                 self.intervalShift -= 6
                 date -= 6 * self.shiftDelta
-            
         elif sender.text() == '>>':
             self.intervalShift = 0
             sender.setDisabled(True)
@@ -870,7 +823,6 @@ class PomoWindow(QtGui.QWidget):
             self.farLeftButtonHandle.setDisabled(False)
 
         self.fillActivityTab()
-
 
     def timeZoom(self):
         """
@@ -903,7 +855,6 @@ class PomoWindow(QtGui.QWidget):
 
         self.fillActivityTab()
 
-
     def onChangeTask(self, string=str()):
         """
         Will be called when the user changes the task in the activity tab.
@@ -913,7 +864,6 @@ class PomoWindow(QtGui.QWidget):
         except KeyError:
             self.activityTaskID = 0
         self.fillActivityTab()
-
 
     def promptUser(self, identifier, additional=None):
         """
@@ -947,8 +897,6 @@ class PomoWindow(QtGui.QWidget):
                 return False
 
         raise KeyError
-
-
 
 def initGUI(pomo):
     app = QtGui.QApplication(sys.argv)

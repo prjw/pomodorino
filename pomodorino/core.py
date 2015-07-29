@@ -14,7 +14,6 @@ class PomoCore():
         super(PomoCore, self).__init__()
         self.initStrings()
 
-
     def initStrings(self):
         """
         Imports the strings.xml for further use.
@@ -25,7 +24,6 @@ class PomoCore():
             self.stringCache = dict()
         except:
             raise RuntimeError("Could not open strings.xml")
-        
 
     def getString(self, identifier):
         """
@@ -37,7 +35,6 @@ class PomoCore():
                 if child.get('name') == identifier:
                     return child.text
         raise ValueError("Cannot find string: '" + identifier + "'.")
-
 
 def run():
     """
