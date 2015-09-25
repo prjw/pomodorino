@@ -158,8 +158,8 @@ class PomoWindow(QtGui.QWidget):
         self.setVisible(True)
         if pomos >= 1 and task != '':
             newTask = self.pomo.pomoData.addPomo(task, pomos)
-            if newTask == True:
-                self.pomoTaskBar.addItem(taskName, None)
+            if newTask is True:
+                self.pomoTaskBar.addItem(task, None)
             self.fillActivityTab()
             self.updateTasksTab()
 
