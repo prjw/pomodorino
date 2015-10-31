@@ -14,6 +14,7 @@ Licensed under the GNU GPL v2.
 * PyQt4
 * SQLite 3
 * Matplotlib
+* PyAlsaAudio
 
 ## Usage
 Select or enter a task, choose a time interval and press start.
