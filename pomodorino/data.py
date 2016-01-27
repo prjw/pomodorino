@@ -242,6 +242,12 @@ class PomoData():
         Deletes a task with all pomos from the db and updates local cache.
         """
         if self.connected is True:
+            tasks = list()
+            for tID, taskName, pomoCount, pomoLast in self.tasks:
+                if tID != taskID:
+                    tasks.append([tID, taskName, pomoCount, pomoLast])
+            self.tasks = tasks
+            
             statement = ("DELETE FROM Tasks WHERE ID = " + str(taskID) + "")
             self.c.execute(statement)
             statement = ("DELETE FROM Pomos WHERE TaskID = " + str(taskID) + "")

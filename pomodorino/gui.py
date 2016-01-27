@@ -43,6 +43,7 @@ class PomoWindow(QtGui.QWidget):
         self.trayIcon = QtGui.QSystemTrayIcon(QtGui.QIcon('/usr/share/icons/pomodorino.png'), self)
         self.trayIcon.setVisible(True)
         self.trayIcon.activated.connect(self.trayClick)
+        
 
         # Add a minimal context menu for the tray icon.
         #trayMenu = QtGui.QMenu(self)
@@ -99,19 +100,6 @@ class PomoWindow(QtGui.QWidget):
         else:
             event.accept()
 
-    def changeEvent(self, event):
-        """
-        Catches the minimizing event and restores the window state.
-        """
-        if event.type() == QtCore.QEvent.WindowStateChange:
-            if self.windowState() & QtCore.Qt.WindowMinimized:
-                if self.trayIcon.isSystemTrayAvailable():
-                    # Restore window state so that the window won't be 
-                    # hidden when the user clicks on the tray icon.
-                    self.setWindowState(self.windowState() & ~QtCore.Qt.WindowMinimized)
-                    self.setVisible(False)
-        event.accept()
-
     def setTitle(self, title):
         """
         Sets the window title.
@@ -152,7 +140,7 @@ class PomoWindow(QtGui.QWidget):
         Is called once the timer finished.
         """
         self.resetTimer()
-        # Define the regular length of a pomodoro. Mainly for debugging reasons
+        # Define the regular length of a pomodoro. Purely for debugging reasons
         POMO_CONST = 25
         pomos = math.floor(self.timerType / POMO_CONST)
         self.setVisible(True)
@@ -172,6 +160,39 @@ class PomoWindow(QtGui.QWidget):
                 self.setVisible(False)
             else:
                 self.setVisible(True)
+    
+    def promptUser(self, identifier, additional=None):
+        """
+        Creates predefined confirmation/warning dialogs.
+        """
+        if identifier == 'ask_paused':
+            reply = QtGui.QMessageBox.question(self, self.getString("ask_paused_title"), self.getString("ask_paused_text"),
+                                               QtGui.QMessageBox.Yes | QtGui.QMessageBox.No, QtGui.QMessageBox.No)
+            if reply == QtGui.QMessageBox.Yes:
+                return True
+            else:
+                return False
+
+        elif identifier == 'warn_notask':
+            QtGui.QMessageBox.warning(self,
+                    self.getString("warn_notask_title"),
+                    self.getString("warn_notask_text"))
+            return
+
+        elif identifier == 'ask_taskdel' and additional != None:
+            askText = self.getString("ask_taskdel_text")
+            askText = str.replace(askText, "%taskname%", str(additional))
+            
+            reply = QtGui.QMessageBox.question(self, self.getString("ask_taskdel_title"), askText,
+                                               QtGui.QMessageBox.Yes | QtGui.QMessageBox.No, QtGui.QMessageBox.No)
+
+            if reply == QtGui.QMessageBox.Yes:
+                return True
+            else:
+                return False
+
+        raise KeyError
+
 
     ##############
     ## Pomo Tab ##
@@ -384,7 +405,8 @@ class PomoWindow(QtGui.QWidget):
         """
         for data in self.audioData:
             self.audioDevice.write(data)
-            
+
+
     ###############
     ## tasks tab ##
     ###############
@@ -519,6 +541,9 @@ class PomoWindow(QtGui.QWidget):
             taskID = self.pomo.pomoData.getTaskID(taskName)
             self.pomo.pomoData.delTask(taskID)
 
+            # Reset the activity tab
+            self.fillActivityTab()
+
     def renameTask(self, warn=""):
         """
         Renames a task by the users request.
@@ -571,7 +596,7 @@ class PomoWindow(QtGui.QWidget):
         selTask = QtGui.QComboBox()
         selTask.insertItem(0, self.getString("lbl_stats_all"), None)
         for tID, tskName, pomoCount, pomoLast in self.pomo.pomoData.tasks:
-            selTask.insertItem (0, tskName, None)
+            selTask.addItem (tskName, None)
             
         selTask.currentIndexChanged['QString'].connect(self.onChangeTask)
         # Save handle for later use.
@@ -864,39 +889,6 @@ class PomoWindow(QtGui.QWidget):
         except KeyError:
             self.activityTaskID = 0
         self.fillActivityTab()
-
-    def promptUser(self, identifier, additional=None):
-        """
-        Creates predefined confirmation/warning dialogs.
-        """
-        if identifier == 'ask_paused':
-            reply = QtGui.QMessageBox.question(self, self.getString("ask_paused_title"), self.getString("ask_paused_text"),
-                                               QtGui.QMessageBox.Yes | QtGui.QMessageBox.No, QtGui.QMessageBox.No)
-
-            if reply == QtGui.QMessageBox.Yes:
-                return True
-            else:
-                return False
-
-        elif identifier == 'warn_notask':
-            QtGui.QMessageBox.warning(self,
-                    self.getString("warn_notask_title"),
-                    self.getString("warn_notask_text"))
-            return
-
-        elif identifier == 'ask_taskdel' and additional != None:
-            askText = self.getString("ask_taskdel_text")
-            askText = str.replace(askText, "%taskname%", str(additional))
-            
-            reply = QtGui.QMessageBox.question(self, self.getString("ask_taskdel_title"), askText,
-                                               QtGui.QMessageBox.Yes | QtGui.QMessageBox.No, QtGui.QMessageBox.No)
-
-            if reply == QtGui.QMessageBox.Yes:
-                return True
-            else:
-                return False
-
-        raise KeyError
 
 def initGUI(pomo):
     app = QtGui.QApplication(sys.argv)
